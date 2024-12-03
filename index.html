@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
+    <script src="https://unpkg.com/compromise"></script>
+    <title>Document</title>
+    <style>
+        #container{
+            margin-top: 0px;
+        }
+        .page {
+            padding: 20px;
+            margin: 20px;
+            border: 1px solid black;
+            width: 40%;
+        }
+    </style>
+</head>
+
+<body>
+    
+    <input id="slider" type="range" min="1" value="0" onmousemove="setPage(value)">
+    <script>
+        function setPage(value) {
+            console.log(value)
+            loadPage(Number(value))
+        }
+    </script>
+    <script>
+        document.addEventListener('mouseup', () => {
+        })
+    </script>
+
+    <div id="container">
+    </div>
+
+    <script src="./pdfLoader.js"></script>
+    <script>
+        const PDF_PATH = "./Drawing_Things_Together2.pdf";
+        const SVG_NS = "http://www.w3.org/2000/svg";
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadPdf(PDF_PATH)
+            loadPage(1)
+        })
+    </script>
+
+</body>
+
+</html>
