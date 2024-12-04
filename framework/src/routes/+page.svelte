@@ -24,4 +24,6 @@
 {#if text == ''}
 <input type="file" bind:this={pdf} on:change={() => {loadPage()}} accept="application/pdf">
 {/if}
+{#if text != ''}
 <PageComponent {text} page={0} />
+{/if}

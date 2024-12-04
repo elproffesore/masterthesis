@@ -12,8 +12,8 @@
     let tagSet = [];
 </script>
 
-<div class="grid grid-cols-12 mt-8 w-[700px]">
-    <div class="col-span-4 flex flex-col gap-4" id="iterations">
+<div class="grid grid-cols-12 mt-8 w-full">
+    <div class="col-span-2 flex flex-col gap-4" id="iterations">
         <h2 class="font-bold">Iterations</h2>
         <div id="iteration-buttons" class=" flex flex-col gap-4">
             {#each iterations as iteration, index}
@@ -50,7 +50,7 @@
             {/each}
         </div>
     </div>
-    <div class="col-start-5 col-span-5 ml-16 h-min flex flex-col gap-4">
+    <div class="col-start-3 col-span-7 relative ml-16 h-min flex flex-col gap-4">
         <div id="wrapper{page}" class="w-full text-justify">
             <PosLayerComponent {text} bind:tagSet {highlight} />
             {#each iterations as iteration, index}

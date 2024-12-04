@@ -55,7 +55,7 @@
     <div
         id="tagger"
         bind:this={tagger}
-        class="pointer-events-none opacity-100 z-20 absolute w-[500px] border rounded-md py-4 px-8 my-8"
+        class="pointer-events-none opacity-100 z-20 absolute border rounded-md py-4 px-8 my-8"
     >
         <input type="text" value="Hello" class="invisible text-xl mb-4 font-[#ffffff00]">
         <div class="terms">

@@ -33,7 +33,7 @@
 </script>
     <div
         id="layer{index}"   
-        class="layers absolute w-[500px] text-invisible border rounded-md py-4 px-8 my-8 {active?"z-10  opacity-100":"z-0 opacity-0"}"
+        class="layers absolute text-invisible border rounded-md py-4 px-8 my-8 {active?"z-10  opacity-100":"z-0 opacity-0"}"
     >
         <input type="text" class="border-b w-full mb-4 text-xl text-black font-bold" bind:value={iteration.name} />
         <div bind:this={layerText} class="text"></div>
