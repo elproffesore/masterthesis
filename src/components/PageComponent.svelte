@@ -1,61 +1,50 @@
 <script>
-    import LayerComponent from "./LayerComponent.svelte";
-    import PosLayerComponent from "./PosLayerComponent.svelte";
     import { nameShortener } from "$lib/helpers";
+    import WordComponent from "./WordComponent.svelte";
+    import { onMount } from "svelte";
+    import rangy from 'rangy';
 
     export let text;
-    export let page;
+    let words = [];
+    let doc;
 
-    let iterations = [];
-    let activeLayer = 0;
-    let highlight = null;
-    let tagSet = [];
+    onMount(() => {
+        window.addEventListener('mouseup', (e) => {
+            rangy.getSelection()._ranges[0].getNodes().filter(node => node.nodeName != '#text').map(node => {})})
+    })
+    $: {
+        if(doc != null){
+            doc.innerHTML = text;
+            let children = doc.children;
+            for (let child of children){
+                let oldHtml = child.innerHTML;
+                child.innerHTML = ''
+                let spans = oldHtml.split(' ').map(word => {
+                    let span = document.createElement('span')
+                    span.innerHTML = word+" "
+                    span.style.position = 'relative'
+                    span.style.transition = 'all 2s ease 0s'
+                    span.style.top = 0
+                    words.push({
+                        htmlObject: span,
+                        creation: new Date().getTime(),
+                        lastTouched: new Date().getTime(),
+                    })
+                    child.appendChild(span)
+                })
+            }
+        }
+    }
+    
 </script>
 
-<div class="grid grid-cols-12 mt-8 w-full">
-    <div class="col-span-2 flex flex-col gap-4" id="iterations">
-        <h2 class="font-bold">Iterations</h2>
-        <div id="iteration-buttons" class=" flex flex-col gap-4">
-            {#each iterations as iteration, index}
-                <button
-                    class="border text-left rounded-md px-2 py-px hover:border-r-8 {activeLayer ==
-                    index
-                        ? 'border-r-8 border-r-[#00ff00]'
-                        : ''}"
-                    on:click={() => {
-                        activeLayer = index;
-                    }}>{nameShortener(iteration.name)}</button
-                >
-            {/each}
-        </div>
-        <button
-            class="text-center border rounded-md pr-2 hover:bg-[#00ff00aa]"
-            on:click={() => {
-                iterations.push({name: 'Iteration'+iterations.length})
-                iterations = iterations
-            }}>+</button
-        >
-        <h2 class="font-bold">Tags</h2>
-        <div class="flex flex-wrap gap-2">
-            {#each tagSet as tag}
-                <!-- svelte-ignore a11y-no-static-element-interactions -->
-                <div
-                    class="w-min text-left border rounded-md px-2 py-px cursor-pointer hover:border-[#00ff00aa]"
-                    on:focus={() => {}}
-                    on:mouseover={() => (highlight = tag)}
-                    on:mouseleave={() => (highlight = null)}
-                >
-                    {tag}
-                </div>
-            {/each}
-        </div>
-    </div>
-    <div class="col-start-3 col-span-7 relative ml-16 h-min flex flex-col gap-4">
-        <div id="wrapper{page}" class="w-full text-justify">
-            <PosLayerComponent {text} bind:tagSet {highlight} />
-            {#each iterations as iteration, index}
-                <LayerComponent bind:iteration={iteration} {text} {index} active={activeLayer == index} />
-            {/each}
+<div class="grid grid-cols-12 w-full">
+    <div class="col-start-1 col-span-6 relative ml-16 h-min flex flex-col gap-4">
+        <div bind:this={doc} id="wrapper{1}" class="w-full relative">
+            <!-- {#each words as word}
+                <WordComponent {word} />
+            {/each} -->
+            <!-- <LayerComponent text={pdf.text} index={0} active={true} /> -->
         </div>
     </div>
 </div>

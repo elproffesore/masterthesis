@@ -19,6 +19,8 @@
 	"dependencies": {
 		"compromise": "^14.14.3",
 		"compromise-stats": "^0.1.0",
-		"pdfjs-dist": "^4.9.124"
+		"marked": "^15.0.4",
+		"pdfjs-dist": "^4.9.124",
+		"rangy": "^1.3.2"
 	}
 }
