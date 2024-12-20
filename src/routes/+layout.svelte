@@ -7,20 +7,4 @@
 
 
 <style>
-	:global(html){
-		font-family: "Cormorant Garamond", serif;
-		font-weight: 400;
-		font-size: 1.3em;
-		line-height: 1.5;
-	}
-	:global(h1){
-		font-family: "Cormorant Garamond", serif;
-		font-weight: 900;
-		font-size: 1.7em;
-	}
-	:global(h2){
-		font-family: "Cormorant Garamond", serif;
-		font-weight: 900;
-		font-size: 1.5em;
-	}
 </style>
