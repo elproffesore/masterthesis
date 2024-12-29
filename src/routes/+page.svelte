@@ -14,14 +14,18 @@
         window.addEventListener('mouseup', (e) => {
             e.preventDefault();
             if (e.target.classList.contains('textElement')) {
+                console.log(rangy
+                    .getSelection()
+                    ._ranges[0].getNodes());
                 let text = '';
                 let nodes = rangy
                     .getSelection()
                     ._ranges[0].getNodes()
-                    .filter((node) => node.nodeName != '#text')
+                    .filter((node) => node.nodeName == 'SPAN')
                     .map((node) => {
-                        if (node.wordInterpretationObject)
+                        if (node.wordInterpretationObject){
                             node.wordInterpretationObject.lastTouched = new Date().getTime();
+                        }
                         // Toggle the underline class of the span element
                         node.classList.toggle('underline');
                         text += node.innerText + ' ';
@@ -92,12 +96,12 @@
     });
 </script>
 
-<div class="w-full h-full fixed pointer-none">
+<div class="w-full h-full fixed pointer-events-none">
     <TextRelationsCoordinator />
 </div>
 <div class="grid grid-cols-12 w-full py-[100px]">
-    <div class="col-start-1 col-span-6 relative ml-16 text-justify" bind:this={doc} id="textWrapper"></div>
-    <div class="col-start-7 col-span-6 relative" id="selectedWords">
+    <div class="col-start-1 col-span-4 relative ml-16 text-justify" bind:this={doc} id="textWrapper"></div>
+    <div class="col-start-5 col-span-8 relative" id="selectedWords">
         <TextModelingCoordinator />
     </div>
 </div>

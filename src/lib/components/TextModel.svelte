@@ -39,7 +39,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <button
     bind:this={object}
-    class="draggable"
+    class="draggable max-w-[300px] bg-white"
     style="transform: translate({textObject.position.x}px, {textObject.position.y}px);"
     draggable="true"
     onmousedown={onMouseDown}
