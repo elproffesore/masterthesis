@@ -2,22 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 @layer base {
-    h1, h2, h3, h4, h5, p {
-        font-family: "Cormorant Garamond", serif;
+    body,
+    html {
+        overscroll-behavior: none;
     }
-   h1 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    p {
+        font-family: 'Cormorant Garamond', serif;
+    }
+    h1 {
         @apply text-[2.5rem] font-black leading-tight;
-   }
-   h2 {
-    @apply text-[2.3rem] font-bold leading-tight;
-}
-h3 {
-    @apply text-[2rem] font-bold leading-tight;
-}
-   p {
+    }
+    h2 {
+        @apply text-[2.3rem] font-bold leading-tight;
+    }
+    h3 {
+        @apply text-[2rem] font-bold leading-tight;
+    }
+    p {
         @apply text-[1.3rem] font-normal leading-normal py-4;
-   }
+    }
 }
