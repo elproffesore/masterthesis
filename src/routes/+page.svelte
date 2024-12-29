@@ -5,7 +5,6 @@
     import { relations, texts } from '$lib/stores';
     import rangy from 'rangy';
     import TextModelingCoordinator from '$lib/components/TextModelingCoordinator.svelte';
-    import TextRelationsCoordinator from '$lib/components/TextRelationsCoordinator.svelte';
 
     let html = $state('');
     let words = $state([]);
@@ -95,10 +94,6 @@
         }
     });
 </script>
-
-<div class="w-full h-full fixed pointer-events-none">
-    <TextRelationsCoordinator />
-</div>
 <div class="grid grid-cols-12 w-full py-[100px]">
     <div class="col-start-1 col-span-4 relative ml-16 text-justify" bind:this={doc} id="textWrapper"></div>
     <div class="col-start-5 col-span-8 relative" id="selectedWords">
