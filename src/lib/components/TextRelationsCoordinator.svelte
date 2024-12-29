@@ -4,9 +4,10 @@
 
     let canvas;
     let ctx = $state(null);
+    let visible = $state(true);
 
     function drawLines() {
-        if (ctx != null) {
+        if (ctx != null && canvas && visible) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             $relations.forEach((relation) => {
                 let textNode = relation.textNode;
@@ -31,11 +32,21 @@
         requestAnimationFrame(drawLines);
     }
     onMount(() => {
-        canvas.width =window.innerWidth;
-        canvas.height =  window.innerHeight;
+        window.addEventListener('keydown', (e) => {
+            if (e.metaKey && e.key == 'h') {
+                e.preventDefault();
+                visible = !visible;
+            }
+        });
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
         ctx = canvas.getContext('2d');
         requestAnimationFrame(drawLines);
     });
 </script>
-
-<canvas bind:this={canvas} class="w-full h-full"></canvas>
+ <canvas bind:this={canvas} class="w-screen h-screen fixed pointer-events-none top-0 left-0 {visible?'block':'hidden'}"></canvas>
