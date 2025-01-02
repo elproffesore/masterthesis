@@ -15,7 +15,7 @@
                 let modelNode = modelNodeObject.htmlObject;
                 let textPos = textNode.getBoundingClientRect();
                 let modelPos = modelNode.getBoundingClientRect();
-                ctx.strokeStyle = 'black';
+                ctx.strokeStyle = `rgba(0,0,0,${relation.relationSemanitcs.intensity})`;
                 ctx.beginPath();
                 ctx.moveTo(textPos.left + textPos.width + 15, textPos.top + textPos.height / 2);
                 ctx.bezierCurveTo(
@@ -48,5 +48,6 @@
         ctx = canvas.getContext('2d');
         requestAnimationFrame(drawLines);
     });
+
 </script>
  <canvas bind:this={canvas} class="w-screen h-screen fixed pointer-events-none top-0 left-0 {visible?'block':'hidden'}"></canvas>
