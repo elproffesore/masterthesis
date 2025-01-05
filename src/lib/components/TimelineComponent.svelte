@@ -39,11 +39,11 @@
     $effect(() => {
         if ($timelineVisibility) {
             $relations.map((relation, relationIndex) => {
-                relation.modelNode.htmlObject.style.opacity = 0.1 + scalePointerPosition(relationIndex) * 0.9;
+                relation.opacity = 0.05 + scalePointerPosition(relationIndex) * 0.95;
             });
         } else {
             $relations.map((relation) => {
-                relation.modelNode.htmlObject.style.opacity = 1;
+                relation.opacity = 1;
             });
         }
     });

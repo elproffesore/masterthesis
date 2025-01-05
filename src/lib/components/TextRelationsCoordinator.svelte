@@ -5,7 +5,7 @@
     let canvas;
     let ctx = $state(null);
 
-    function drawLines() {
+    function render() {
         if (ctx != null && canvas && $connectionsVisibility) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             $relations.forEach((relation) => {
@@ -14,7 +14,8 @@
                 let modelNode = modelNodeObject.htmlObject;
                 let textPos = textNode.getBoundingClientRect();
                 let modelPos = modelNode.getBoundingClientRect();
-                ctx.strokeStyle = `rgba(0,0,0,${$connectionsOpacity})`;
+                modelNode.style.opacity = relation.opacity;
+                ctx.strokeStyle = `rgba(0,0,0,${relation.opacity})`;
                 ctx.beginPath();
                 ctx.moveTo(textPos.left + textPos.width + 15, textPos.top + textPos.height / 2);
                 ctx.bezierCurveTo(
@@ -28,7 +29,7 @@
                 ctx.stroke();
             });
         }
-        requestAnimationFrame(drawLines);
+        requestAnimationFrame(render);
     }
     onMount(() => {
         window.addEventListener('resize', () => {
@@ -38,7 +39,7 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         ctx = canvas.getContext('2d');
-        requestAnimationFrame(drawLines);
+        requestAnimationFrame(render);
     });
 
 </script>

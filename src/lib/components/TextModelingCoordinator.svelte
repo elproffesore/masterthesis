@@ -66,9 +66,7 @@
                     $relations.push({
                         textNode: mostRightNode,
                         modelNode: $texts[length - 1],
-                        relationSemanitcs: {
-                            intensity: 0.2, // initial value
-                        },
+                        opacity: 1.0,
                         createdAt: new Date().getTime(),
                         lastTouched: new Date().getTime(),
                     });
