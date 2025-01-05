@@ -1,7 +1,9 @@
 <script>
     import { onMount } from 'svelte';
     import { marked } from 'marked';
+    import { text } from '$lib/stores';
     import TextModelingCoordinator from '$lib/components/TextModelingCoordinator.svelte';
+    import { tfidf } from '$lib/utils';
 
     let html = $state('');
     let words = $state([]);
@@ -9,8 +11,9 @@
 
     onMount(async () => {
         let file = await fetch('./files/latour-a-cautious-promotheus.md');
-        let text = await file.text();
-        html = await marked(text);
+        $text = await file.text();
+        tfidf.addDocument($text);
+        html = await marked($text);
         doc.innerHTML = html;
             let wordsBuffer = [];
             let children = doc.children;
@@ -39,9 +42,9 @@
             words = wordsBuffer;
     });
 </script>
-<div class="grid grid-cols-12 w-full pt-[70px] pl-[30px]">
-    <div id="textWrapper" class="col-start-1 col-span-4 relative text-justify" bind:this={doc} ></div>
-    <div id="selectedWords" class="col-start-5 col-span-8 relative" >
+<div class="w-full pt-[70px] pl-[30px]">
+    <div id="textWrapper" class="w-[36%] relative text-justify" bind:this={doc} ></div>
+    <div id="selectedWords" class="w-[60%] h-screen left-[40%] fixed top-0" >
         <TextModelingCoordinator />
     </div>
 </div>

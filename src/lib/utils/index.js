@@ -1,3 +1,5 @@
+import TfIdf from 'natural/lib/natural/tfidf';
+
 // place files you want to import through the `$lib` alias in this folder.
 export const posColors = {
     "Noun": "red",
@@ -32,3 +34,5 @@ export function getMostRightNode(nodes) {
 
     return mostRightNode;
 }
+// NLP functions
+export let tfidf = new TfIdf.TfIdf();
