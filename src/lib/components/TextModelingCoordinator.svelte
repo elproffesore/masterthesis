@@ -1,5 +1,5 @@
 <script>
-    import { texts, relations,timelineVisibility,connectionsVisibility, markingColor } from '$lib/stores';
+    import { texts, relations, markingColor } from '$lib/stores';
     import { getMostRightNode } from '$lib/utils';
     import TextModel from '$lib/components/TextModel.svelte';
     import TextRelationsCoordinator from '$lib/components/TextRelationsCoordinator.svelte';
@@ -7,7 +7,8 @@
     import rangy from 'rangy';
     import TimelineComponent from './TimelineComponent.svelte';
     import { tfidf } from '$lib/utils';
-    let optionsVisibility = $state(true);
+    import LayerOptions from './LayerOptions.svelte';
+
     const opacityRegex = /rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*([0-9]*\.?[0-9]+)\s*\)/;
 
     function findSpanParentRecursive(node, level = 0) {
@@ -39,8 +40,8 @@
                     }
                     // Set the background color of the selected word to a light purple
                     const opacity = window.getComputedStyle(node).backgroundColor.match(opacityRegex)[1]; // Returns "0.5"
-                    console.log(opacity);
-                    node.style.backgroundColor = $markingColor.substring(0, $markingColor.length - 5) + ',' + (Number(opacity) + 0.2) + ')';
+                    let colors = Array.from($markingColor.matchAll(/\d+/g))
+                    node.style.backgroundColor = `rgba(${colors[0]},${colors[1]},${colors[2]},${Number(opacity) + 0.2})`;
                     text += node.innerText + ' ';
                 });
 
@@ -78,25 +79,8 @@
         });
     });
 </script>
-<div class="flex flex-col gap-px fixed items-end bottom-4 right-4">
-    <div class="flex gap-4 mb-4">
-        <label for="options">Options</label>
-        <input name="options" type="checkbox"  bind:checked={optionsVisibility}/>
-    </div>
-    {#if optionsVisibility}
-    <div class="flex gap-4">
-        <label for="timeline">Timeline</label>
-        <input name="timeline" type="checkbox" class="" bind:checked={$timelineVisibility}/>
 
-    </div>
-    <div class="flex gap-4">
-        <label for="connections">Connections</label>
-        <input name="connections" type="checkbox" class="" bind:checked={$connectionsVisibility} />
-
-    </div>
-    {/if}
-</div>
-
+<LayerOptions/>
 <TextRelationsCoordinator />
 <div class="w-full fixed">
     {#each $texts as _, i}

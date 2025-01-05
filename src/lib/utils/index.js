@@ -9,8 +9,13 @@ export const posColors = {
     "Preposition": "orange",
     "Conjunction": "lime",
     "Determiner": "pink",
-     "Pronoun": "brown",
+    "Pronoun": "brown",
 }
+export const colors = [
+    'rgba(255,0,255,1)',
+    'rgba(55, 255, 0,1)',
+    'rgba(255, 255, 0,1)',
+]
 export const posTagBannlist = [
     "Pronoun",
 ];
