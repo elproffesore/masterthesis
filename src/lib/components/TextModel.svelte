@@ -1,7 +1,6 @@
 <script>
     import { onMount } from 'svelte';
     import { text } from '$lib/stores';
-    import { tfidf } from '$lib/utils';
 
 
     let { textObject = $bindable() } = $props();

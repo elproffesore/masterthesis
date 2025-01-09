@@ -3,15 +3,15 @@
     import { marked } from 'marked';
     import { text } from '$lib/stores';
     import TextModelingCoordinator from '$lib/components/TextModelingCoordinator.svelte';
-    import { tfidf } from '$lib/utils';
 
     let html = $state('');
     let doc;
 
     onMount(async () => {
         let file = await fetch('./files/latour-a-cautious-promotheus.md');
-        $text = await file.text();
-        tfidf.addDocument($text);
+        let rawText = await file.text();
+        rawText = rawText.split('\n').slice(0,7).map((line) => line + '\r\r').join('');
+        $text = rawText
         html = await marked($text);
         doc.innerHTML = html;
         let children = doc.children;
@@ -30,12 +30,8 @@
     });
 </script>
 
-<div class="w-full pt-[70px] pl-[30px]">
-    <div id="textWrapper" class="w-[36%] relative text-justify" bind:this={doc}></div>
-    <div id="selectedWords" class="w-[60%] h-screen left-[40%] fixed top-0">
-        <TextModelingCoordinator />
-    </div>
-</div>
+<div id="textWrapper" class="w-[33%] mt-8 relative mx-auto text-justify" bind:this={doc}></div>
+<TextModelingCoordinator />
 
 <style>
     :global(#textWrapper span) {

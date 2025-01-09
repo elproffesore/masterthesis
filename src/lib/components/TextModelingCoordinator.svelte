@@ -6,7 +6,6 @@
     import { onMount } from 'svelte';
     import rangy from 'rangy';
     import TimelineComponent from './TimelineComponent.svelte';
-    import { tfidf } from '$lib/utils';
     import LayerOptions from './LayerOptions.svelte';
 
     const opacityRegex = /rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*([0-9]*\.?[0-9]+)\s*\)/;
@@ -51,7 +50,6 @@
                         text: text,
                         position: { x: 100, y: 100 },
                         otherPositions: {},
-                        relevance:  tfidf.tfidfs(text.trim())[0],
                         nodes,
                         htmlObject: null,
                         createdAt: new Date().getTime(),
