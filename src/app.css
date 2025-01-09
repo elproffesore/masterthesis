@@ -6,7 +6,7 @@
     body,
     html {
         overscroll-behavior: none;
-        background-color: #faf6f1;
+        background-color: #fffff8;
     }
     h1,
     h2,
@@ -15,7 +15,9 @@
     h5,
     p {
         font-family: century, 'Times New Roman', serif;
-        color: #111111
+        color: #111111;
+        padding: 0;
+        margin: 0;
     }
     h1 {
         @apply text-[2.2rem] font-black leading-tight text-left;

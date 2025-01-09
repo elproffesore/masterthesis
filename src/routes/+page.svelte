@@ -10,8 +10,12 @@
     onMount(async () => {
         let file = await fetch('./files/latour-a-cautious-promotheus.md');
         let rawText = await file.text();
-        rawText = rawText.split('\n').slice(0,7).map((line) => line + '\r\r').join('');
-        $text = rawText
+        rawText = rawText
+            .split('\n')
+            .slice(0, 7)
+            .map((line) => line + '\r\r')
+            .join('');
+        $text = rawText;
         html = await marked($text);
         doc.innerHTML = html;
         let children = doc.children;
@@ -30,14 +34,15 @@
     });
 </script>
 
-<div id="textWrapper" class="w-[33%] mt-8 relative mx-auto text-justify" bind:this={doc}></div>
-<TextModelingCoordinator />
+<div>
+    <div id="textWrapper" class="w-1/3 max-w-[500px] mt-8 relative mx-auto text-justify z-10 overflow-scroll" bind:this={doc}></div>
+    <TextModelingCoordinator />
+</div>
 
 <style>
     :global(#textWrapper span) {
         position: relative;
         transition: display 2s ease 0s;
-        top: 0;
-        background-color: rgba(255, 255, 255, 0);
-    }
+        top: 0;    
+        }
 </style>

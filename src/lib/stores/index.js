@@ -3,7 +3,7 @@ import { writable } from "svelte/store";
 
 
 export let text = writable("");
-export let texts = writable([]);
+export let textModels = writable([]);
 export let relations = writable([]);
 
 // Styling Variables

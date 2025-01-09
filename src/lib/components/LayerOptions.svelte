@@ -4,7 +4,7 @@
     let optionsVisibility = $state(true);
     let colorVisibility = $state(false);
 </script>
-<div class="flex flex-col gap-2 fixed items-end bottom-4 right-4">
+<div class="flex flex-col gap-2 fixed items-end bottom-4 right-4 z-[20]">
     <div class="flex gap-2 mb-4">
         <label for="options">Options</label>
         <input name="options" type="checkbox"  bind:checked={optionsVisibility}/>
