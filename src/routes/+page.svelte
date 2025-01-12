@@ -1,8 +1,10 @@
 <script>
     import { onMount } from 'svelte';
     import { marked } from 'marked';
-    import { text } from '$lib/stores';
+    import { text, textModels, relations, graphVisibility } from '$lib/stores';
     import TextModelingCoordinator from '$lib/components/TextModelingCoordinator.svelte';
+    import LayerOptions from '$lib/components/LayerOptions.svelte';
+    import * as d3 from 'd3';
 
     let html = $state('');
     let doc;
@@ -32,10 +34,16 @@
             });
         }
     });
+
 </script>
 
 <div>
-    <div id="textWrapper" class="w-1/3 max-w-[500px] mt-8 relative mx-auto text-justify z-10 overflow-scroll" bind:this={doc}></div>
+    <LayerOptions />
+    <div
+        id="textWrapper"
+        class="w-1/3 min-w-[400px] max-w-[600px] mt-8 relative mx-auto text-justify z-10 overflow-scroll"
+        bind:this={doc}>
+    </div>
     <TextModelingCoordinator />
 </div>
 
@@ -43,6 +51,6 @@
     :global(#textWrapper span) {
         position: relative;
         transition: display 2s ease 0s;
-        top: 0;    
-        }
+        top: 0;
+    }
 </style>

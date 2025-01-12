@@ -38,6 +38,29 @@ export function getMostLeftNode(nodes) {
 
     return mostLeftNode;
 }
+export function getBoundingClientOfNodeGroup(nodes){
+    let mostLeftNode = getMostLeftNode(nodes);
+    let mostRightNode = getMostRightNode(nodes);
+    let left = mostLeftNode.getBoundingClientRect().left;
+    let right = mostRightNode.getBoundingClientRect().right;
+    let top = mostLeftNode.getBoundingClientRect().top;
+    let bottom = mostLeftNode.getBoundingClientRect().bottom;
+    let width = right - left;
+    let height = bottom - top;
+    let center = {
+        x: left + width / 2,
+        y: top + height / 2
+    };
+    return {
+        left,
+        right,
+        top,
+        bottom,
+        width,
+        height,
+        center
+    }
+}
 
 export const opacityRegex = /rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*([0-9]*\.?[0-9]+)\s*\)/;
 
