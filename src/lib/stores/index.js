@@ -13,5 +13,6 @@ export let markingColor = writable(colors[0]);
 // Visibilities of the modals
 export let connectionsVisibility = writable(true);
 export let timelineVisibility = writable(false);
+export let nodesVisibility = writable(true);
 
 

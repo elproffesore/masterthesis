@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import { relations, textModels } from '$lib/stores';
+    import { relations, textModels,nodesVisibility,timelineVisibility } from '$lib/stores';
     import { text } from '@sveltejs/kit';
     import CommentDialogComponent from './CommentDialogComponent.svelte';
 
@@ -68,6 +68,7 @@
 <div
     bind:this={object}
     id={'textModel-' + textModel.id}
+    class:hidden={!$nodesVisibility}
     class="textModel absolute cursor-grab max-w-[300px]"
     style:left={textModel.x + 'px'}
     style:top={textModel.y + 'px'}
@@ -77,7 +78,7 @@
     onclick={scrollToText}
     onmouseenter={displayCommentButton}
     onmouseleave={hideCommentButton}>
-    <span class="markedText">"{textModel.text}"</span>
+    <span class="markedText">{textModel.text}</span>
     <div class="mt-2">
         {#each textModel.comments as comment, commentIndex}
             <div class="grid grid-cols-[auto,1fr] gap-2">

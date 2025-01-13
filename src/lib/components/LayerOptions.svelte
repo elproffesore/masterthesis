@@ -1,5 +1,5 @@
 <script>
-    import { timelineVisibility, connectionsVisibility, markingColor } from '$lib/stores';
+    import { timelineVisibility, connectionsVisibility, nodesVisibility, markingColor } from '$lib/stores';
     import { colors } from '$lib/utils';
     let optionsVisibility = $state(true);
     let colorVisibility = $state(false);
@@ -18,6 +18,10 @@
         <div class="flex gap-2">
             <label for="connections">Connections</label>
             <input name="connections" type="checkbox" class="" bind:checked={$connectionsVisibility} />
+        </div>
+        <div class="flex gap-2">
+            <label for="nodes">Nodes</label>
+            <input name="nodes" type="checkbox" class="" bind:checked={$nodesVisibility} />
         </div>
         <div class="flex gap-2">
             <label for="color">Color</label>

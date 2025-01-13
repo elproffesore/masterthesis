@@ -1,4 +1,5 @@
 <script>
+    import { nodesVisibility } from '$lib/stores';
     import { relations,timelineVisibility,connectionsVisibility } from '$lib/stores';
     import { getMostLeftNode, getMostRightNode } from '$lib/utils';
     import * as d3 from 'd3';
@@ -41,10 +42,6 @@
             }
                 let leftNode = getMostLeftNode(d.source.nodes).getBoundingClientRect();
                 let rightNode = getMostRightNode(d.source.nodes).getBoundingClientRect();
-                // if(!d.target.referenceNode.isConnected){
-                //     d.target.referenceNode = document.querySelector(`#textModel-${d.target.id}`);
-                // }
-                // let targetNode = d.target.referenceNode.getBoundingClientRect();
                 let targetNode = document.querySelector(`#textModel-${d.target.id} .markedText`).getBoundingClientRect();
                 // Check which node is closer to the source node
                 let leftDistance = Math.abs(leftNode.x - targetNode.x + targetNode.width);
@@ -70,13 +67,14 @@
                 return line([controlPoint1, controlPoint2, controlPoint3, controlPoint4]);
         })
         .attr('stroke-width', $connectionsVisibility ? 1.5 : 0)
-        .attr('opacity', (d) => d.opacity); 
+        .attr('opacity', (d) => $timelineVisibility ? d.opacity: 0.5); 
 
     });
 </script>
 
 <svg
     id="relations"
+    class:hidden={!$nodesVisibility}
     bind:this={svg}
     class="w-screen h-screen fixed pointer-events-none top-0 left-0"
 ></svg>

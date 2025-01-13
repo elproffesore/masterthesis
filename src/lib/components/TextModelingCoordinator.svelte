@@ -29,22 +29,30 @@
 
                 if (nodes.length > 0) {
                     // Create a logical node with all the information about the selection
-                    let textModelNode = {
-                        text: text,
-                        id: uuidv4(),
-                        x: 100,
-                        y: 100,
-                        nodes,
-                        referenceNode: null,
-                        comments:[],
-                        relations: [],
-                        opacity: 1,
-                        createdAt: new Date().getTime(),
-                        changedAt: new Date().getTime(),
-                    };
-                    // Push this node into the texts store
-                    let length = $textModels.push(textModelNode);
-                    $textModels = $textModels;
+                    let model = null;
+                    let similarModel = $textModels.find((model) => model.text.toLocaleLowerCase() == text.toLocaleLowerCase());
+                    if (similarModel != undefined) {
+                        model = similarModel;
+                    } else {
+                        let textModelNode = {
+                            text: text,
+                            id: uuidv4(),
+                            x: 100,
+                            y: 100,
+                            nodes,
+                            referenceNode: null,
+                            comments: [],
+                            relations: [],
+                            opacity: 1,
+                            createdAt: new Date().getTime(),
+                            changedAt: new Date().getTime(),
+                        };
+
+                        // Push this node into the texts store
+                        let length = $textModels.push(textModelNode);
+                        model = $textModels[length - 1];
+                        $textModels = $textModels;
+                    }
                     let boundingClientRectText = getMostRightNode(nodes).getBoundingClientRect();
                     let textNode = {
                         text: text,
@@ -57,13 +65,13 @@
                     };
                     // Connect the text node with the logical node
                     let relationsLength = $relations.push({
-                            source: textNode,
-                            target: $textModels[length - 1],
-                            createdAt: new Date().getTime(),
-                            changedAt: new Date().getTime(),
-                            opacity: 1,
-                        });
-                    $textModels[length - 1].relations.push($relations[length-1]);
+                        source: textNode,
+                        target: model,
+                        createdAt: new Date().getTime(),
+                        changedAt: new Date().getTime(),
+                        opacity: 1,
+                    });
+                    model.relations.push($relations[length - 1]);
                     $relations = $relations;
                     $textModels = $textModels;
                 }
