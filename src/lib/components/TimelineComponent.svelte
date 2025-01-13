@@ -1,4 +1,5 @@
 <script>
+    import { textModels } from '$lib/stores';
     import { relations, timelineVisibility } from '$lib/stores';
     import moment from 'moment';
 
@@ -34,15 +35,17 @@
             timeStampsSorted = [];
             return;
         }
-        timeStampsSorted = $relations.map((relation) => relation.modelNode.createdAt).sort((a, b) => a - b);
+        timeStampsSorted = $relations.map((relation) => relation.target.createdAt).sort((a, b) => a - b);
     });
     $effect(() => {
         if ($timelineVisibility) {
             $relations.map((relation, relationIndex) => {
+                $textModels.find(t => t.id == relation.target.id).opacity = 0.05 + scalePointerPosition(relationIndex) * 0.95;
                 relation.opacity = 0.05 + scalePointerPosition(relationIndex) * 0.95;
             });
         } else {
             $relations.map((relation) => {
+                $textModels.find(t => t.id == relation.target.id).opacity = 1
                 relation.opacity = 1;
             });
         }
@@ -51,17 +54,21 @@
         e.preventDefault();
         pointer = Math.round(reverseRescale(e.clientX - e.currentTarget.getBoundingClientRect().left));
         pointerPosition = timelineElement.children[pointer].getBoundingClientRect().left - timelineElement.getBoundingClientRect().left;
+        $relations.map((relation, relationIndex) => {
+                relation.target.opacity = 0.05 + scalePointerPosition(relationIndex) * 0.95;
+                relation.opacity = 0.05 + scalePointerPosition(relationIndex) * 0.95;
+            });
     }
     function scalePointerPosition(index) {
         let absDifference = index - pointer;
-        let scale = 1 / ((Math.pow(absDifference, 2)*2) + 1);
+        let scale = 1 / ((Math.pow(absDifference, 2)*4) + 1);
         return scale;
     }
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-    class="absolute bottom-4 w-3/4 left-[50%] translate-x-[-50%] flex items-end h-16"
+    class="fixed bottom-4 w-3/4 left-[50%] translate-x-[-50%] flex items-end h-16"
     style:visibility={$timelineVisibility ? 'visible' : 'hidden'}
     onmousemove={updateTimeLinePointer}>
     <div bind:this={timelineElement} class="w-max flex items-end gap-2 z-1">

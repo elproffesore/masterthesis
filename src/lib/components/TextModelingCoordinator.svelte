@@ -7,6 +7,7 @@
     import rangy from 'rangy';
     import TimelineComponent from './TimelineComponent.svelte';
     import LayerOptions from './LayerOptions.svelte';
+    import { v4 as uuidv4 } from 'uuid';
 
     onMount(() => {
         window.addEventListener('mouseup', (e) => {
@@ -30,22 +31,40 @@
                     // Create a logical node with all the information about the selection
                     let textModelNode = {
                         text: text,
+                        id: uuidv4(),
                         x: 100,
                         y: 100,
                         nodes,
                         referenceNode: null,
-                        relations: [
-                            {
-                                nodes,
-                                x:0,
-                                y:0
-                            },
-                        ],
+                        comments:[],
+                        relations: [],
+                        opacity: 1,
                         createdAt: new Date().getTime(),
                         changedAt: new Date().getTime(),
                     };
                     // Push this node into the texts store
                     let length = $textModels.push(textModelNode);
+                    $textModels = $textModels;
+                    let boundingClientRectText = getMostRightNode(nodes).getBoundingClientRect();
+                    let textNode = {
+                        text: text,
+                        x: boundingClientRectText.x,
+                        y: boundingClientRectText.y,
+                        nodes,
+                        opacity: 1,
+                        createdAt: new Date().getTime(),
+                        changedAt: new Date().getTime(),
+                    };
+                    // Connect the text node with the logical node
+                    let relationsLength = $relations.push({
+                            source: textNode,
+                            target: $textModels[length - 1],
+                            createdAt: new Date().getTime(),
+                            changedAt: new Date().getTime(),
+                            opacity: 1,
+                        });
+                    $textModels[length - 1].relations.push($relations[length-1]);
+                    $relations = $relations;
                     $textModels = $textModels;
                 }
                 window.getSelection().removeAllRanges();
@@ -54,11 +73,11 @@
     });
 </script>
 
-<LayerOptions/>
+<LayerOptions />
 <TextRelationsCoordinator />
 <div class="w-full h-full top-0 left-0 fixed z-0">
     {#each $textModels as _, i}
         <TextModel bind:textModel={$textModels[i]} />
     {/each}
 </div>
-<!-- <TimelineComponent /> -->
+<TimelineComponent />
