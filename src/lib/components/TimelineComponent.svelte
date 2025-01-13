@@ -2,6 +2,7 @@
     import { textModels } from '$lib/stores';
     import { relations, timelineVisibility } from '$lib/stores';
     import moment from 'moment';
+    import { onMount } from 'svelte';
 
     let timeStampsSorted = $state([]);
     let start = 0;
@@ -9,6 +10,17 @@
     let pointer = $state(0);
     let timelineElement;
     let pointerPosition = $state(0);
+    onMount(() => {
+        timelineVisibility.subscribe((value) => {
+            if(!value){
+                $relations.map(relation => {
+                    let textModel = $textModels.find(t => t.id == relation.target.id)
+                    textModel.opacity = 1;
+                    relation.opacity = 1;
+                })
+            }
+        });
+    })
     function rescale(x) {
         let inMin = start;
         let inMax = end;
@@ -37,25 +49,12 @@
         }
         timeStampsSorted = $relations.map((relation) => relation.target.createdAt).sort((a, b) => a - b);
     });
-    $effect(() => {
-        if ($timelineVisibility) {
-            $relations.map((relation, relationIndex) => {
-                $textModels.find(t => t.id == relation.target.id).opacity = 0.05 + scalePointerPosition(relationIndex) * 0.95;
-                relation.opacity = 0.05 + scalePointerPosition(relationIndex) * 0.95;
-            });
-        } else {
-            $relations.map((relation) => {
-                $textModels.find(t => t.id == relation.target.id).opacity = 1
-                relation.opacity = 1;
-            });
-        }
-    });
     function updateTimeLinePointer(e) {
         e.preventDefault();
         pointer = Math.round(reverseRescale(e.clientX - e.currentTarget.getBoundingClientRect().left));
         pointerPosition = timelineElement.children[pointer].getBoundingClientRect().left - timelineElement.getBoundingClientRect().left;
         $relations.map((relation, relationIndex) => {
-                relation.target.opacity = 0.05 + scalePointerPosition(relationIndex) * 0.95;
+                $textModels.find(t => t.id == relation.target.id).opacity = 0.05 + scalePointerPosition(relationIndex) * 0.95;
                 relation.opacity = 0.05 + scalePointerPosition(relationIndex) * 0.95;
             });
     }
@@ -68,10 +67,10 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-    class="fixed bottom-4 w-3/4 left-[50%] translate-x-[-50%] flex items-end h-16"
+    class="fixed bottom-4 w-min left-[80%] translate-x-[-50%] flex items-end h-16"
     style:visibility={$timelineVisibility ? 'visible' : 'hidden'}
     onmousemove={updateTimeLinePointer}>
-    <div bind:this={timelineElement} class="w-max flex items-end gap-2 z-1">
+    <div bind:this={timelineElement} class="w-max flex items-end gap-2 z-1 ">
         {#each timeStampsSorted as timestamp, timestampIndex}
             <div class="w-px bg-black relative rounded" style="height: {10 + scalePointerPosition(timestampIndex) * 15}px;">
             </div>
