@@ -1,5 +1,5 @@
 <script>
-    import { textModels, relations, markingColor, graphVisibility } from '$lib/stores';
+    import { textModels, models, relations, markingColor, graphVisibility } from '$lib/stores';
     import { getMostRightNode, findSpanParentRecursive, opacityRegex, getMostLeftNode } from '$lib/utils';
     import TextModel from '$lib/components/TextModel.svelte';
     import TextRelationsCoordinator from '$lib/components/TextRelationsCoordinator.svelte';
@@ -7,7 +7,7 @@
     import rangy from 'rangy';
     import TimelineComponent from './TimelineComponent.svelte';
     import LayerOptions from './LayerOptions.svelte';
-    import * as d3 from 'd3'
+    import * as d3 from 'd3';
     import { v4 as uuidv4 } from 'uuid';
     onMount(() => {
         window.addEventListener('mouseup', (e) => {
@@ -28,11 +28,10 @@
                 });
 
                 if (nodes.length > 0) {
-                    let node = nodes[0].getBoundingClientRect();
                     // Create a logical node with all the information about the selection
                     let textModelNode = {
                         text,
-                        index: uuidv4(),
+                        id: uuidv4(),
                         type: 'comment', // can be text, comment or drawing
                         x: 100,
                         y: 100,
@@ -44,29 +43,29 @@
                         changedAt: new Date().getTime(),
                     };
                     // Push this node into the texts store
-                    let length = $textModels.push(textModelNode);
-                    $textModels = $textModels;
+                    $textModels.push(textModelNode);
 
                     let textReferenceNode = {
                         text,
-                        index: uuidv4(),
+                        id: uuidv4(),
                         type: 'text', // can be text, comment or drawing
-                        x: 100,
-                        y: 100,
+                        x: 400,
+                        y: 400,
                         vx: 0,
                         vy: 0,
                         referenceNodes: [...nodes],
                         createdAt: new Date().getTime(),
                         changedAt: new Date().getTime(),
-                    }
-
+                    };
+                    let length = $textModels.push(textReferenceNode);
+                    $textModels = $textModels;
 
                     // Push this node into the relations store
                     let relation = {
-                        source: textModelNode,
-                        target: textReferenceNode,
-                        opacity: 1,
+                        source: $textModels[length - 2].id,
+                        target: $textModels[length - 1].id,
                     };
+
                     $relations.push(relation);
                     $relations = $relations;
                 }
@@ -74,7 +73,6 @@
             }
         });
     });
-
 </script>
 
 <TextRelationsCoordinator />

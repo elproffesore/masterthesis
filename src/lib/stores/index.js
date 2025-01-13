@@ -4,6 +4,7 @@ import { writable } from "svelte/store";
 
 export let text = writable("");
 export let textModels = writable([]);
+export let models = writable({});
 export let relations = writable([]);
 export let simulation = writable(null);
 
