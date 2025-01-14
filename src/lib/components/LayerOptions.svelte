@@ -1,35 +1,48 @@
 <script>
-    import { timelineVisibility, connectionsVisibility, nodesVisibility, markingColor } from '$lib/stores';
+    import { markingType } from '$lib/stores';
+    import { timelineVisibility, connectionsVisibility, nodesVisibility, markingColor, textCollapse } from '$lib/stores';
     import { colors } from '$lib/utils';
     let optionsVisibility = $state(true);
-    let colorVisibility = $state(false);
+    let colorVisibility = $state(true);
+    let viewsVisibility = $state(true);
+    let stylesVisibility = $state(true);
+    let visualVisibility = $state(true);
 </script>
 
-<div class="flex flex-col gap-2 fixed items-end bottom-4 right-4 z-[20]">
-    <div class="flex gap-2 mb-4">
-        <label for="options">Options</label>
-        <input name="options" type="checkbox" bind:checked={optionsVisibility} />
+<div class="flex flex-col gap-2 fixed items-start bottom-4 left-4 z-[20]">
+    <div class="flex gap-2">
+        <label for="options" class="font-bold">
+            <input name="options" type="checkbox" bind:checked={optionsVisibility} />
+            Options</label>
     </div>
     {#if optionsVisibility}
-        <div class="flex gap-2">
-            <label for="timeline">Timeline</label>
-            <input name="timeline" type="checkbox" class="" bind:checked={$timelineVisibility} />
+    <div id="views" class="flex flex-col gap-2 items-start">
+        <label for="views" class="font-bold">
+            <input name="views" type="checkbox"  bind:checked={viewsVisibility} />
+            Views</label>
+        {#if viewsVisibility}
+        <div class="flex gap-2 pl-4">
+            <label for="timeline">
+                <input name="timeline" type="checkbox" class="" bind:checked={$timelineVisibility} />
+                Timeline</label>
         </div>
-        <div class="flex gap-2">
-            <label for="connections">Connections</label>
-            <input name="connections" type="checkbox" class="" bind:checked={$connectionsVisibility} />
-        </div>
-        <div class="flex gap-2">
-            <label for="nodes">Nodes</label>
-            <input name="nodes" type="checkbox" class="" bind:checked={$nodesVisibility} />
-        </div>
-        <div class="flex gap-2">
-            <label for="color">Color</label>
-            <input name="color" type="checkbox" class="" bind:checked={colorVisibility} />
+        {/if}
+    </div>
+    <div id="styles" class="flex flex-col gap-2 items-start">
+        <label for="styles" class="font-bold">
+            <input name="styles" type="checkbox"  bind:checked={stylesVisibility} />
+            Styles</label>
+            {#if stylesVisibility}
+
+
+        <div class="flex gap-2 pl-4">
+            <label for="color">
+                <input name="color" type="checkbox" class="" bind:checked={colorVisibility} />
+                Color</label>
         </div>
 
         {#if colorVisibility}
-            <div class="flex flex-col gap-2">
+            <div class="flex gap-2 pl-4">
                 {#each colors as color}
                     <div
                         class="w-4 h-4"
@@ -42,5 +55,54 @@
                 {/each}
             </div>
         {/if}
+        <div class="flex flex-col gap-2 pl-4">
+            <label for="highlight">
+                <input
+                    id="highlight"
+                    name="marking"
+                    type="radio"
+                    value="highlight"
+                    class=""
+                    checked
+                    bind:group={$markingType} />
+                Highlight</label>
+            <label for="underline">
+                <input
+                    id="underline"
+                    name="marking"
+                    type="radio"
+                    value="underline"
+                    class=""
+                    bind:group={$markingType} />
+                Underline</label>
+            <label for="wave">
+                <input id="wave" name="marking" type="radio" value="wave" class="" bind:group={$markingType} />
+                Wave</label>
+        </div>
+
+    {/if}
+    </div>
+    <div id="visual" class="flex flex-col gap-2 items-start">
+        <label for="visual" class="font-bold">
+            <input name="visual" type="checkbox"  bind:checked={visualVisibility} />
+            Visual</label>
+            {#if visualVisibility}
+            <div class="flex gap-2 pl-4">
+                <label for="connections">
+                    <input name="connections" type="checkbox" class="" bind:checked={$connectionsVisibility} />
+                    Connections</label>
+            </div>
+            <div class="flex gap-2 pl-4">
+                <label for="nodes">
+                    <input name="nodes" type="checkbox" class="" bind:checked={$nodesVisibility} />
+                    Nodes</label>
+            </div>
+            <div class="flex gap-2 pl-4">
+                <label for="textCollapse">
+                    <input name="textCollapse" type="checkbox" class="" bind:checked={$textCollapse} />
+                    Text Collapse</label>
+            </div>
+            {/if}
+    </div>
     {/if}
 </div>

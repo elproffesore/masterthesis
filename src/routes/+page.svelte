@@ -35,7 +35,7 @@
 </script>
 
 <div>
-    <div id="textWrapper" class="w-1/3 max-w-[500px] mt-8 relative mx-auto text-justify z-10 overflow-scroll" bind:this={doc}></div>
+    <div id="textWrapper" class="min-w-[400px] max-w-[500px] mt-8 relative mx-auto text-justify z-10 overflow-scroll" bind:this={doc}></div>
     <TextModelingCoordinator />
 </div>
 

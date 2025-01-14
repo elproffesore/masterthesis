@@ -8,6 +8,7 @@
     import TimelineComponent from './TimelineComponent.svelte';
     import LayerOptions from './LayerOptions.svelte';
     import { v4 as uuidv4 } from 'uuid';
+    import { markingType } from '$lib/stores';
 
     onMount(() => {
         window.addEventListener('mouseup', (e) => {
@@ -22,7 +23,21 @@
                     // Set the background color of the selected word to a light purple
                     const opacity = window.getComputedStyle(node).backgroundColor.match(opacityRegex)[1]; // Returns "0.5"
                     let colors = Array.from($markingColor.matchAll(/\d+/g));
-                    node.style.backgroundColor = `rgba(${colors[0]},${colors[1]},${colors[2]},${Number(opacity) + 0.2})`;
+                    switch($markingType){
+                        case 'highlight':
+                            node.style.backgroundColor = `rgba(${colors[0]},${colors[1]},${colors[2]},${Number(opacity) + 0.2})`;
+                            break;
+                        case 'underline':
+                            node.style.textDecoration = 'underline';
+                            node.style.textDecorationThickness = '1.5px';
+                            node.style.textDecorationColor = `rgba(${colors[0]},${colors[1]},${colors[2]},${Number(opacity) + 0.4})`;
+                            break;
+                        case 'wave':
+                            node.style.textDecoration = 'underline wavy';
+                            node.style.textDecorationThickness = '1.5px';
+                            node.style.textDecorationColor = `rgba(${colors[0]},${colors[1]},${colors[2]},${Number(opacity) + 0.4})`;
+                            break;
+                    }
                     text += node.innerText + ' ';
                     node.classList.add('selected');
                 });

@@ -3,6 +3,7 @@
     import { relations, textModels,nodesVisibility,timelineVisibility } from '$lib/stores';
     import { text } from '@sveltejs/kit';
     import CommentDialogComponent from './CommentDialogComponent.svelte';
+    import { textCollapse } from '$lib/stores';
 
     let { textModel = $bindable() } = $props();
     let object;
@@ -78,16 +79,16 @@
     onclick={scrollToText}
     onmouseenter={displayCommentButton}
     onmouseleave={hideCommentButton}>
-    <span class="markedText">{textModel.text}</span>
-    <div class="mt-2">
+    <span class="markedText {$textCollapse?'line-clamp-1':''}">{textModel.text}</span>
+    <div class="mt-px">
         {#each textModel.comments as comment, commentIndex}
             <div class="grid grid-cols-[auto,1fr] gap-2">
-                <div class="flex flex-col">
+                <div class="flex items-center">
                     <span
-                        class="w-4 h-4 border border-black rounded-full text-[0.7rem] flex items-center justify-center"
+                        class="w-4 h-4 border border-black rounded-full text-[0.65rem] flex items-center justify-center"
                         >{commentIndex + 1}</span>
                 </div>
-                <span class="text-[#ee0000] max-w-[300px]">{comment}</span>
+                <span class="text-[#ee0000] max-w-[300px] {$textCollapse?'line-clamp-1':''}" >{comment}</span>
             </div>
         {/each}
     </div>

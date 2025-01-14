@@ -9,6 +9,8 @@ export let relations = writable([]);
 // Styling Variables
 export let connectionsOpacity = writable(0.5);
 export let markingColor = writable(colors[0]);
+export let markingType = writable("highlight");
+export let textCollapse = writable(false);
 
 // Visibilities of the modals
 export let connectionsVisibility = writable(true);
