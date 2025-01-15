@@ -7,7 +7,7 @@ export let textModels = writable([]);
 export let relations = writable([]);
 
 // Styling Variables
-export let connectionsOpacity = writable(0.5);
+export let connectionsOpacity = writable(0.3);
 export let markingColor = writable(colors[0]);
 export let markingType = writable("highlight");
 export let textCollapse = writable(false);
@@ -16,5 +16,6 @@ export let textCollapse = writable(false);
 export let connectionsVisibility = writable(true);
 export let timelineVisibility = writable(false);
 export let nodesVisibility = writable(true);
+export let graphVisibility = writable(false);
 
 

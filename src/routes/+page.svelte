@@ -3,6 +3,7 @@
     import { marked } from 'marked';
     import { text } from '$lib/stores';
     import TextModelingCoordinator from '$lib/components/TextModelingCoordinator.svelte';
+    import { graphVisibility } from '$lib/stores';
 
     let html = $state('');
     let doc;
@@ -12,7 +13,7 @@
         let rawText = await file.text();
         rawText = rawText
             .split('\n')
-            .slice(0, 7)
+            .slice(0)
             .map((line) => line + '\r\r')
             .join('');
         $text = rawText;
@@ -34,8 +35,8 @@
     });
 </script>
 
-<div>
-    <div id="textWrapper" class="min-w-[400px] max-w-[500px] mt-8 relative mx-auto text-justify z-10 overflow-scroll" bind:this={doc}></div>
+<div class="">
+    <div id="textWrapper" class="ml-8 w-1/3 mt-8 absolute left-0 z-10 transition-all duration-1000" style:left={$graphVisibility ? '-40%' :'0'} bind:this={doc}></div>
     <TextModelingCoordinator />
 </div>
 

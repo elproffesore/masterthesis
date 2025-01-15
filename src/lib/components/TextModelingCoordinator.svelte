@@ -9,9 +9,10 @@
     import LayerOptions from './LayerOptions.svelte';
     import { v4 as uuidv4 } from 'uuid';
     import { markingType } from '$lib/stores';
+    import { graphVisibility } from '$lib/stores';
 
     onMount(() => {
-        window.addEventListener('mouseup', (e) => {
+        window.addEventListener('mouseup',(e) => {
             e.preventDefault();
             if (e.target.classList.contains('textElement') || e.target.parentNode.classList.contains('textElement')) {
                 let text = '';
@@ -52,12 +53,13 @@
                         let textModelNode = {
                             text: text,
                             id: uuidv4(),
-                            x: 100,
-                            y: 100,
+                            x: window.innerWidth / 2,
+                            y: window.innerHeight / 2,
                             nodes,
                             referenceNode: null,
                             comments: [],
                             relations: [],
+                            relatedWords:[],
                             opacity: 1,
                             createdAt: new Date().getTime(),
                             changedAt: new Date().getTime(),
@@ -98,7 +100,7 @@
 
 <LayerOptions />
 <TextRelationsCoordinator />
-<div class="w-full h-full top-0 left-0 fixed z-0">
+<div class="w-full h-full top-0 left-0 fixed z-0 transition-all duration-1000">
     {#each $textModels as _, i}
         <TextModel bind:textModel={$textModels[i]} />
     {/each}
