@@ -82,11 +82,10 @@
                     y: targetNode.y + targetNode.height / 2,
                 };
                 let controlPoint4 = { x: targetNode.x - 5, y: targetNode.y + targetNode.height / 2 };
-
                 return line([controlPoint1, controlPoint2, controlPoint3, controlPoint4]);
             })
             .attr('stroke-width', (d) =>  $connectionsVisibility ? 1 : 0)
-            .attr('opacity', (d) => ($timelineVisibility ? d.opacity : $connectionsOpacity));
+            .attr('opacity', (d) => d.opacity);
     }
     function updateGraph(textModels) {
         if(textModels.length === 0){
@@ -106,16 +105,13 @@
             graphTextGroup.exit().remove();
             let graphTextGroupEnter = graphTextGroup.enter().append('g').attr('id', `graph-${textModel.id}`);
 
-
-
-
             let graphtext = graphTextGroupEnter.selectAll('text').data(relatedWordsArray[textModelIndex]);
             graphtext.exit().remove();
 
             let graphtextEnter = graphtext
                 .enter()
                 .append('text')
-                .attr('fill', '#111111aa')
+                .attr('fill', (d) => d.length > 2 ?d[2]:'#111111aa')
                 .attr('font-size', (d) => `${1+powScale(d[1],2)*40}px`)
                 .text((d) => d[0]);
             
@@ -131,11 +127,10 @@
             if (!simulationArray[textModelIndex]) {
                 const simulation = d3
                     .forceSimulation(relatedWordsArray[textModelIndex])
-                    .alphaTarget(1)
+                    .alphaTarget(0.3)
                     .force("collide", d3.forceCollide().radius(50))
                     .force('charge', d3.forceManyBody().strength(-10))
-                    .force("x", d3.forceX(textModelNode.left+textModelNode.width/2).strength(0.3))
-                    .force("y", d3.forceY(textModelNode.top+textModelNode.height/2).strength(0.3))
+                    .force('radial', d3.forceRadial(50, textModelNode.left+textModelNode.width/2, textModelNode.top+textModelNode.height/2).strength(0.1))
 
                 simulation.on('tick', () => {
                     graphtextEnter.merge(graphtext).style('transform', function (d, i) {
@@ -145,8 +140,7 @@
                 simulationArray[textModelIndex] = simulation;
             }else{
                 simulationArray[textModelIndex]
-                .force("x", d3.forceX(textModelNode.left+textModelNode.width/2).strength(0.3))
-                .force("y", d3.forceY(textModelNode.top+textModelNode.height/2).strength(0.3))
+                .force('radial', d3.forceRadial(50, textModelNode.left+textModelNode.width/2, textModelNode.top+textModelNode.height/2).strength(0.1))
             }
         });
     }

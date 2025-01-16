@@ -14,6 +14,12 @@
     onMount(async () => {
         let file = await fetch('./files/latour-a-cautious-promotheus.md');
         let rawText = await file.text();
+        rawText = rawText
+            .split('\n')
+            .slice(0,10)
+            .map((line) => line + '\r\r')
+            .join('');
+
         $words = [
             ...new Set(
                 rawText
@@ -26,11 +32,7 @@
                     })
             ),
         ];
-        rawText = rawText
-            .split('\n')
-            .slice(0)
-            .map((line) => line + '\r\r')
-            .join('');
+
 
         $text = rawText;
         html = await marked($text);

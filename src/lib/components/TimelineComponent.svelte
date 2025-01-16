@@ -14,15 +14,12 @@
         timelineVisibility.subscribe((value) => {
             if (!value) {
                 $relations.map((relation) => {
-                    let textModel = $textModels.find((t) => t.id == relation.target.id);
-                    textModel.opacity = 1;
+                    relation.target.opacity = 1;
                     relation.opacity = 1;
                 });
             } else {
-                $relations.map((relation, relationIndex) => {
-                    $textModels.find((t) => t.id == relation.target.id).opacity = scalePointerPosition(relationIndex);
-                    relation.opacity = 0 + scalePointerPosition(relationIndex);
-                });
+                timeStampsSorted = $relations.map((relation) => relation.target.createdAt).sort((a, b) => a - b);
+                updateOpacities()
             }
         });
     });
@@ -46,30 +43,30 @@
         }
         return ((x - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
     }
-    $effect(() => {
-        // Handle empty relations
-        if (!$relations || $relations.length === 0) {
-            timeStampsSorted = [];
-            return;
-        }
-        timeStampsSorted = $relations.map((relation) => relation.target.createdAt).sort((a, b) => a - b);
-    });
     function updateTimeLinePointer(e) {
         e.preventDefault();
         pointer = Math.round(reverseRescale(e.clientX - e.currentTarget.getBoundingClientRect().left));
         pointerPosition =
             timelineElement.children[pointer].getBoundingClientRect().left -
             timelineElement.getBoundingClientRect().left;
-        $relations.map((relation, relationIndex) => {
-            $textModels.find((t) => t.id == relation.target.id).opacity = scalePointerPosition(relationIndex);
-            relation.opacity = 0 + scalePointerPosition(relationIndex);
-            $relations = $relations;
-        });
+        updateOpacities()
     }
     function scalePointerPosition(index) {
         let absDifference = index - pointer;
         let scale = 1 / (Math.pow(absDifference, 2) * 2 + 1);
         return scale;
+    }
+    function updateOpacities(){
+        let relationScores = {};
+        $relations.map((relation, relationIndex) => {
+            let newOpacity = 0 + scalePointerPosition(relationIndex);
+            relationScores[relation.target.id] = Math.max(relationScores[relation.target.id] || 0, scalePointerPosition(relationIndex));
+            relation.opacity = scalePointerPosition(relationIndex);
+        });
+        Object.keys(relationScores).map((key) => {
+            $textModels.find((t) => t.id == key).opacity = relationScores[key];
+        });
+        $relations = $relations;
     }
 </script>
 
