@@ -82,12 +82,12 @@ export function semanticalySimilarWords(words) {
                 .replace(/[^a-z\sA-Z]/g, '')
                 .trim()
                 .split(' '),
-            top_n: 15,
+            top_n: 30,
         }),
     })
         .then((relatedWordsRequest) => relatedWordsRequest.json())
         .then((relatedWordsJson) => {
-            return relatedWordsJson.similar_words.slice(10).map((word) => {
+            return relatedWordsJson.similar_words.slice(0,5).map((word) => {
                 return { word: word.word };
             });
         });

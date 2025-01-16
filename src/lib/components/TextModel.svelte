@@ -3,7 +3,7 @@
     import { relations, textModels, nodesVisibility, timelineVisibility, graphVisibility, words } from '$lib/stores';
     import CommentDialogComponent from './CommentDialogComponent.svelte';
     import { textCollapse } from '$lib/stores';
-    import { semanticalyRelativeWordsInText, getMostRightNode, powScale } from '$lib/utils';
+    import { semanticalyRelativeWordsInText, getMostRightNode, powScale, semanticalySimilarWords } from '$lib/utils';
     import { text } from '@sveltejs/kit';
 
     let { textModel = $bindable() } = $props();
@@ -14,40 +14,52 @@
 
     onMount(() => {
         textModel.referenceNode = object;
-        semanticalyRelativeWordsInText(textModel.text.split(' ')[0], $words).then((words) => {
-            words = words.filter((word) => word[1] > 0.5 && word[1] < 0.99).sort((a, b) => b[1] - a[1]);
 
-            textModel.relatedWords = words;
-            console.log(textModel.relatedWords);
+        semanticalyRelativeWordsInText(textModel.text.split(' ')[0], $words)
+            .then((words) => {
+                console.log(words)
+                words = words
+                    .filter((word) => word[1] > 0.3 && word[1] < 0.99) // remove words with a low score
+                    .sort((a, b) => b[1] - a[1]) // sort by score
+                    .slice(0, 5); // get the top 5 words
+                    
 
-            words.map((word, i) => {
-                let node = document.querySelector('.' + word[0]);
-                if (node) {
-                    node.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
-                    let boundingClientRectText = getMostRightNode([node]).getBoundingClientRect();
-                    let textNode = {
-                        text: word[0],
-                        x: boundingClientRectText.x,
-                        y: boundingClientRectText.y,
-                        nodes: [node],
-                        opacity: 1,
-                        createdAt: new Date().getTime(),
-                        changedAt: new Date().getTime(),
-                    };
-                    // Connect the text node with the logical node
-                    let relationsLength = $relations.push({
-                        source: textNode,
-                        target: textModel,
-                        createdAt: new Date().getTime(),
-                        changedAt: new Date().getTime(),
-                        opacity: (i + 1) * 0.5,
-                    });
-                    textModel.relations.push($relations[relationsLength - 1]);
-                }
+                textModel.relatedWords = words;
+                words.map((word, i) => {
+                    let node = document.querySelector('.' + word[0]);
+                    if (node) {
+                        node.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+                        let boundingClientRectText = getMostRightNode([node]).getBoundingClientRect();
+                        let textNode = {
+                            text: word[0],
+                            x: boundingClientRectText.x,
+                            y: boundingClientRectText.y,
+                            nodes: [node],
+                            opacity: 1,
+                            createdAt: new Date().getTime(),
+                            changedAt: new Date().getTime(),
+                        };
+                        // Connect the text node with the logical node
+                        let relationsLength = $relations.push({
+                            source: textNode,
+                            target: textModel,
+                            createdAt: new Date().getTime(),
+                            changedAt: new Date().getTime(),
+                            opacity: 1,
+                        });
+                        textModel.relations.push($relations[relationsLength - 1]);
+                    }
+                });
+                $textModels = $textModels;
+                $relations = $relations;
+            })
+            .then(() => {
+                semanticalySimilarWords(textModel.text).then((words) => {
+                    words.map(word => textModel.relatedWords.push([word.word , 0.5, "red"]) )
+                    $relations = $relations
+                });
             });
-            $textModels = $textModels;
-            $relations = $relations;
-        });
+
         // Update the relations array to propagate the change in the model node
         $textModels = $textModels;
         $relations = $relations;
@@ -79,10 +91,18 @@
     }
     function displayCommentButton(event) {
         event.preventDefault();
+        // $relations.filter(relation => relation.target.id == textModel.id).map(relation => {
+        //     relation.opacity = 1;
+        //     $relations = $relations
+        // })
         commentFunctionDisplay = true;
     }
     function hideCommentButton() {
         event.preventDefault();
+        // $relations.filter(relation => relation.target.id == textModel.id).map(relation => {
+        //     relation.opacity = 0;
+        //     $relations = $relations
+        // })
         commentFunctionDisplay = false;
         commentFunctionActive = false;
     }
@@ -90,7 +110,7 @@
     function scrollToText(event) {
         event.preventDefault();
         console.log(textModel.relations);
-        if (!moving) {
+        if (!moving && !$graphVisibility) {
             textModel.relations[currentShownRelation].source.nodes[0].scrollIntoView({
                 behavior: 'smooth',
                 block: 'center',
@@ -128,7 +148,7 @@
     onmouseenter={displayCommentButton}
     onmouseleave={hideCommentButton}>
     <span class="markedText {$textCollapse ? 'line-clamp-1' : ''}">{textModel.text}</span>
-    {#if !$graphVisibility}
+    <!-- {#if !$graphVisibility}
         <div>
             {#each textModel.comments as comment, commentIndex}
                 <div class="grid grid-cols-[auto,1fr] gap-2">
@@ -150,5 +170,5 @@
                 </p>
             {/if}
         {/if}
-    {/if}
+    {/if} -->
 </div>
