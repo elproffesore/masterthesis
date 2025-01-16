@@ -88,8 +88,8 @@
                         changedAt: new Date().getTime(),
                         opacity: 1,
                     });
-                    model.relations.push($relations[length - 1]);
                     $relations = $relations;
+                    model.relations.push($relations[relationsLength - 1]);
                     $textModels = $textModels;
                 }
                 window.getSelection().removeAllRanges();

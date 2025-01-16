@@ -5,6 +5,7 @@ import { writable } from "svelte/store";
 export let text = writable("");
 export let textModels = writable([]);
 export let relations = writable([]);
+export let words = writable([]);
 
 // Styling Variables
 export let connectionsOpacity = writable(0.3);

@@ -3,7 +3,7 @@
     import { nodesVisibility } from '$lib/stores';
     import { textModels } from '$lib/stores';
     import { relations, timelineVisibility, connectionsVisibility } from '$lib/stores';
-    import { getMostLeftNode, getMostRightNode } from '$lib/utils';
+    import { getMostLeftNode, getMostRightNode, powScale } from '$lib/utils';
     import * as d3 from 'd3';
     import { onMount } from 'svelte';
 
@@ -85,7 +85,7 @@
 
                 return line([controlPoint1, controlPoint2, controlPoint3, controlPoint4]);
             })
-            .attr('stroke-width', $connectionsVisibility ? 1 : 0)
+            .attr('stroke-width', (d) =>  $connectionsVisibility ? 1 : 0)
             .attr('opacity', (d) => ($timelineVisibility ? d.opacity : $connectionsOpacity));
     }
     function updateGraph(textModels) {
@@ -116,7 +116,8 @@
                 .enter()
                 .append('text')
                 .attr('fill', '#111111aa')
-                .text((d) => d.word);
+                .attr('font-size', (d) => `${1+powScale(d[1],2)*40}px`)
+                .text((d) => d[0]);
             
             let textModelNode = document.querySelector(`#textModel-${textModel.id}`)?.getBoundingClientRect() ?? null;
 

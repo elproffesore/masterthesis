@@ -1,9 +1,10 @@
 <script>
     import { onMount } from 'svelte';
-    import { relations, textModels, nodesVisibility, timelineVisibility, graphVisibility } from '$lib/stores';
-    import { text } from '@sveltejs/kit';
+    import { relations, textModels, nodesVisibility, timelineVisibility, graphVisibility, words } from '$lib/stores';
     import CommentDialogComponent from './CommentDialogComponent.svelte';
     import { textCollapse } from '$lib/stores';
+    import { semanticalyRelativeWordsInText, getMostRightNode, powScale } from '$lib/utils';
+    import { text } from '@sveltejs/kit';
 
     let { textModel = $bindable() } = $props();
     let object;
@@ -13,22 +14,40 @@
 
     onMount(() => {
         textModel.referenceNode = object;
-                fetch('http://localhost:8000/similar',{
-                    'method': 'POST',
-                    'headers': {
-                        'Content-Type': 'application/json'
-                    },
-                    'body': JSON.stringify({
-                        'words': textModel.text.trim().replace(/[^a-z\sA-Z]/g, '').split(' '),
-                        'top_n': 15
-                    })
-                })
-                .then((relatedWordsRequest) => relatedWordsRequest.json())
-                    .then((relatedWordsJson) => {
-                        textModel.relatedWords = relatedWordsJson.similar_words.slice(10).map((word) => {return{word:word.word}})
-                        console.log(relatedWordsJson,textModel.relatedWords);
-                        $textModels = $textModels;
+        semanticalyRelativeWordsInText(textModel.text.split(' ')[0], $words).then((words) => {
+            words = words.filter((word) => word[1] > 0.5 && word[1] < 0.99).sort((a, b) => b[1] - a[1]);
+
+            textModel.relatedWords = words;
+            console.log(textModel.relatedWords);
+
+            words.map((word, i) => {
+                let node = document.querySelector('.' + word[0]);
+                if (node) {
+                    node.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+                    let boundingClientRectText = getMostRightNode([node]).getBoundingClientRect();
+                    let textNode = {
+                        text: word[0],
+                        x: boundingClientRectText.x,
+                        y: boundingClientRectText.y,
+                        nodes: [node],
+                        opacity: 1,
+                        createdAt: new Date().getTime(),
+                        changedAt: new Date().getTime(),
+                    };
+                    // Connect the text node with the logical node
+                    let relationsLength = $relations.push({
+                        source: textNode,
+                        target: textModel,
+                        createdAt: new Date().getTime(),
+                        changedAt: new Date().getTime(),
+                        opacity: (i + 1) * 0.5,
                     });
+                    textModel.relations.push($relations[relationsLength - 1]);
+                }
+            });
+            $textModels = $textModels;
+            $relations = $relations;
+        });
         // Update the relations array to propagate the change in the model node
         $textModels = $textModels;
         $relations = $relations;
@@ -67,10 +86,23 @@
         commentFunctionDisplay = false;
         commentFunctionActive = false;
     }
+    let currentShownRelation = 0;
     function scrollToText(event) {
         event.preventDefault();
+        console.log(textModel.relations);
         if (!moving) {
-            textModel.nodes[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            textModel.relations[currentShownRelation].source.nodes[0].scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
+            currentShownRelation += 1;
+            if (currentShownRelation >= textModel.relations.length) {
+                currentShownRelation = 0;
+            }
+            clearTimeout(textModel.relationTimeout);
+            textModel.relationTimeout = setTimeout(() => {
+                currentShownRelation = 0;
+            }, 5000);
         }
     }
     $effect(() => {
