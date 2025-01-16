@@ -71,7 +71,7 @@ export function semanticalyRelativeWordsInText(word, words) {
             return array;
         });
 }
-export function semanticalySimilarWords(words) {
+export function semanticalySimilarWords(words,top_n) {
     return fetch('http://localhost:8000/similar', {
         method: 'POST',
         headers: {
@@ -82,14 +82,13 @@ export function semanticalySimilarWords(words) {
                 .replace(/[^a-z\sA-Z]/g, '')
                 .trim()
                 .split(' '),
-            top_n: 30,
+            top_n,
         }),
     })
         .then((relatedWordsRequest) => relatedWordsRequest.json())
         .then((relatedWordsJson) => {
-            return relatedWordsJson.similar_words.slice(0,5).map((word) => {
-                return { word: word.word };
-            });
+            console.log(relatedWordsJson);
+            return relatedWordsJson.similar_words
         });
 }
 export function powScale(value, pow) {

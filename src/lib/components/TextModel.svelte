@@ -5,6 +5,8 @@
     import { textCollapse } from '$lib/stores';
     import { semanticalyRelativeWordsInText, getMostRightNode, powScale, semanticalySimilarWords } from '$lib/utils';
     import { text } from '@sveltejs/kit';
+    import winkUtils from 'wink-nlp-utils';
+    import levenshtein from 'js-levenshtein';
 
     let { textModel = $bindable() } = $props();
     let object;
@@ -17,12 +19,13 @@
 
         semanticalyRelativeWordsInText(textModel.text.split(' ')[0], $words)
             .then((words) => {
-                console.log(words)
+                console.log(words);
                 words = words
-                    .filter((word) => word[1] > 0.3 && word[1] < 0.99) // remove words with a low score
+                    .filter((word) => word[1] > 0.3) // remove words with a low score
+                    .filter((word) => word[0].length > 2) // remove words with a length less than 2
+                    .filter((word) => word[0].search(/[^a-zA-Z]/g) == -1) // remove the word itself
                     .sort((a, b) => b[1] - a[1]) // sort by score
-                    .slice(0, 5); // get the top 5 words
-                    
+                    .slice(0, 3); // get the top 5 words
 
                 textModel.relatedWords = words;
                 words.map((word, i) => {
@@ -54,9 +57,37 @@
                 $relations = $relations;
             })
             .then(() => {
-                semanticalySimilarWords(textModel.text).then((words) => {
-                    words.map(word => textModel.relatedWords.push([word.word , 0.5, "red"]) )
-                    $relations = $relations
+                semanticalySimilarWords(textModel.text, 50).then((words) => {
+                    let textModelParts = textModel.text
+                        .split(' ')
+                        .map((word) => word.replace(/[^a-zA-Z]/g, ''))
+                        .map((word) => winkUtils.string.stem(word))
+                        .filter((word) => word.length > 1);
+
+                    words = words
+                        .filter((word) => word.word.length > 2) // remove words with a length less than 2
+                        .filter((word) => word.word.search(/[^a-zA-Z]/g) == -1)
+                        .filter((word) => !/[a-z][A-Z]/.test(word.word))
+                        .filter((word) => !textModelParts.some((part) => levenshtein(part, word.word) < 3))
+                        .filter(
+                            (word) =>
+                                !new RegExp(String.raw`${textModelParts.toString().replaceAll(',', '|')}`, 'gi').test(
+                                    word.word,
+                                ),
+                        );
+
+                    let bag = [];
+                    words.map((word) => {
+                        if (!bag.some((bagWord) => levenshtein(bagWord.word, word.word) < 5)) {
+                            bag.push(word);
+                        }
+                    });
+
+                    bag.sort((a, b) => b.score - a.score) // sort by score
+                        .slice(0, 3) // get the top 5 words
+                        .map((word) => textModel.relatedWords.push([word.word, word.score, 'red']));
+
+                    $relations = $relations;
                 });
             });
 

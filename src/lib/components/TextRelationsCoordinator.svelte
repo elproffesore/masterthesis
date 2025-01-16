@@ -112,7 +112,7 @@
                 .enter()
                 .append('text')
                 .attr('fill', (d) => d.length > 2 ?d[2]:'#111111aa')
-                .attr('font-size', (d) => `${1+powScale(d[1],2)*40}px`)
+                .attr('font-size', (d) => `${1+powScale(d[1])*40}px`)
                 .text((d) => d[0]);
             
             let textModelNode = document.querySelector(`#textModel-${textModel.id}`)?.getBoundingClientRect() ?? null;
@@ -129,8 +129,8 @@
                     .forceSimulation(relatedWordsArray[textModelIndex])
                     .alphaTarget(0.3)
                     .force("collide", d3.forceCollide().radius(50))
-                    .force('charge', d3.forceManyBody().strength(-10))
-                    .force('radial', d3.forceRadial(50, textModelNode.left+textModelNode.width/2, textModelNode.top+textModelNode.height/2).strength(0.1))
+                    .force('charge', d3.forceManyBody().strength(-30))
+                    .force('radial', d3.forceRadial(150, textModelNode.left+textModelNode.width/2, textModelNode.top+textModelNode.height/2).strength(0.3))
 
                 simulation.on('tick', () => {
                     graphtextEnter.merge(graphtext).style('transform', function (d, i) {
@@ -140,7 +140,10 @@
                 simulationArray[textModelIndex] = simulation;
             }else{
                 simulationArray[textModelIndex]
-                .force('radial', d3.forceRadial(50, textModelNode.left+textModelNode.width/2, textModelNode.top+textModelNode.height/2).strength(0.1))
+                .force('radial', d3.forceRadial(150, textModelNode.left+textModelNode.width/2, textModelNode.top+textModelNode.height/2).strength(0.3))
+                .force('charge', d3.forceManyBody().strength(-30))
+                .force("collide", d3.forceCollide().radius(50))
+
             }
         });
     }
