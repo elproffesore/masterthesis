@@ -45,8 +45,9 @@
                         textModel.relations.push($relations[relationsLength - 1]);
                     }
                 });
+                return words
             })
-            .then(() => {
+            .then((textWords) => {
                 semanticalySimilarWords(textModel.text, 50).then((words) => {
                     words.bag
                         .sort((a, b) => b.score - a.score) // sort by score
@@ -57,24 +58,30 @@
                             return word;
                         })
                         .map((word) => {
-                            let wordRelation = $wordRelations.some((wordRelation) => wordRelation.word == word.word);
+                            let wordRelation = $wordRelations.find((wordRelation) => wordRelation.id == word.word);
                             if (wordRelation) {
                                 wordRelation.relations.push({ source: textModel.text, target:word.word , score: word.score });
                             } else {
-                                $wordRelations.push({type:"relation", id: word.word, relations: [{ source: textModel.text,target:word.word , score: word.score }] });
+                                $wordRelations.push({type:"relation", id: word.word, relations: [{ source: textModel.text, target:word.word , score: word.score }] });
                             }
                         });
-                        let textModelDimensions = textModel.referenceNode.getBoundingClientRect();
-                        $wordRelations.push({type:"root", id: textModel.text, node:textModel, relations:[], fx:textModelDimensions.x + textModelDimensions.width / 2, fy:textModelDimensions.y + textModelDimensions.height / 2});
-                    
+                    textWords.map((word) => {
+                            let wordRelation = $wordRelations.find((wordRelation) => wordRelation.id == word.word);
+                            if (wordRelation) {
+                                wordRelation.relations.push({ source: textModel.text, target:word.word , score: word.score });
+                            } else {
+                                $wordRelations.push({type:"relation", id: word.word, relations: [{ source: textModel.text, target:word.word , score: word.score }] });
+                            }
+                        });
+                    let textModelDimensions = textModel.referenceNode.getBoundingClientRect();
+                    $wordRelations.push({type:"root", id: textModel.text, node:textModel, relations:[],x: textModelDimensions.x + textModelDimensions.width / 2,fx:textModelDimensions.x + textModelDimensions.width / 2,y: textModelDimensions.y + textModelDimensions.height / 2, fy:textModelDimensions.y + textModelDimensions.height / 2});
+                    $wordRelations = [...$wordRelations];
+                    $relations = [...$relations];
                     // Update the relations array to propagate the change in the model node
-                    $textModels = $textModels;
-                    $relations = $relations;
-                    $wordRelations = $wordRelations;
                 });
             });
-        $textModels = $textModels;
-        $relations = $relations;
+        $textModels = [...$textModels];
+        $relations = [...$relations];
     });
     function onMouseDown(event) {
         if (!commentFunctionActive) {

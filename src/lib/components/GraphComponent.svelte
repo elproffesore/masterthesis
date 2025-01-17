@@ -10,64 +10,84 @@
     let relatedWordsArray = [];
     onMount(() => {
         svg = d3.select('#graph');
-        relations.subscribe((value) => {
-            updateGraph($textModels);
-        });
-
-        // wordRelations.subscribe(() => {
-        //     let groupUpdate = svg.selectAll('.wordRelations').data($wordRelations);
-        //     groupUpdate.exit().remove();
-        //     let groupEnter = groupUpdate
-        //         .enter()
-        //         .append('g')
-        //         .attr('class', '.wordRelations')
-        //         .attr('id', (d) => '#wordRelations-' + d.id);
-
-        //     groupEnter
-        //         .append('text')
-        //         .attr('fill', (d) => '#111111aa')
-        //         .attr('font-size', (d) => `${15}px`)
-        //         .attr('text-anchor', 'middle')
-        //         .text((d) => d.type =="relation" ? d.id:" ");
-
-        //     let update = groupEnter.selectAll('line').data((d) => d.relations);
-        //     update.exit().remove();
-        //     let enter = update.enter().append('line').attr('stroke', '#11111144').attr('stroke-width', 1).attr('opacity', 0.5);
-
-        //     if (simulation == null) {
-        //         console.log('simulation');
-        //         simulation = d3
-        //             .forceSimulation($wordRelations)
-        //             .force('link', (d) => d3.forceLink(d.relations).id((d) => d.id).distance(30))
-        //             .force('charge', d3.forceManyBody().strength(5))
-        //             .alphaTarget(0.3)
-        //             .on('tick', () => {
-        //                 if(simulation.nodes().length == 0){
-        //                     simulation.nodes($wordRelations);
-        //                 }
-
-        //                 simulation.force('link', (d) => d3.forceLink(d.relations).id((d) => d.id).distance(30))
-        //                 groupEnter.merge(groupUpdate).style('transform', function (d, i) {
-        //                     if(d.type == "relation"){
-        //                         return `translate(${d.x}px,${d.y}px)`;
-        //                     }else{
-        //                         console.log(d);
-        //                         d.fx = d.node.referenceNode.getBoundingClientRect().x + d.node.referenceNode.getBoundingClientRect().width / 2;
-        //                         d.fy = d.node.referenceNode.getBoundingClientRect().y + d.node.referenceNode.getBoundingClientRect().height / 2;
-
-        //                         return `translate(${d.fx}px,${d.fy}px)`;
-        //                     }
-        //                 });
-        //                 // enter
-        //                 //     .merge(update)
-        //                 //     .attr('x1', (d) => 0)
-        //                 //     .attr('y1', (d) => 0)
-        //                 //     .attr('x2', (d) => 0)
-        //                 //     .attr('y2', (d) => 0);
-        //             });
-        //     } else {
-        //     }
+        // relations.subscribe((value) => {
+        //     updateGraph($textModels);
         // });
+        relations.subscribe(() => {
+            $wordRelations
+                .filter((relation) => relation.type == 'root')
+                .map((relation) => {
+                    let node = relation.node.referenceNode;
+                    if (node) {
+                        let boundingClientRect = node.getBoundingClientRect();
+                        relation.fx = boundingClientRect.x + boundingClientRect.width / 2;
+                        relation.fy = boundingClientRect.y + boundingClientRect.height / 2;
+                        relation.x = relation.fx;
+                        relation.y = relation.fy;
+                    }
+                });
+        });
+        wordRelations.subscribe((value) => {
+            let groupUpdate = svg.selectAll('.wordRelations').data(value);
+            groupUpdate.exit().remove();
+            let groupEnter = groupUpdate
+                .enter()
+                .append('g')
+                .attr('class', 'wordRelations')
+                .attr('id', (d) => '#wordRelations-' + d.id);
+
+            groupEnter
+                .append('text')
+                .attr('fill', (d) => (d.type == 'relation' ? '#ff1111aa' : 'none'))
+                .attr('font-size', (d) => `${15}px`)
+                .attr('text-anchor', 'middle')
+                .attr('dominant-baseline', 'middle')
+                .text((d) => d.id);
+            let relationsFlat = value.map((wordRelation) => wordRelation.relations).flat();
+            let relationsFlatNodes = relationsFlat.map((wordRelation) => [wordRelation.source, wordRelation.target, wordRelation.score]);
+            let linkUpdate = svg.selectAll('.link').data(relationsFlatNodes);
+            linkUpdate.exit().remove();
+            let linkEnter = linkUpdate
+                .enter()
+                .append('line')
+                .attr('class', 'link')
+                .attr('stroke', '#000000')
+
+            if (simulation == null) {
+                simulation = d3
+                    .forceSimulation(value)
+                    .force('charge', d3.forceManyBody().strength(-75))
+                    .force('collide', d3.forceCollide().radius(30))
+                    .alphaTarget(0.6)
+
+            } 
+                simulation.nodes(value);
+                simulation
+                    .force(
+                        'link',
+                        d3
+                            .forceLink(relationsFlat)
+                            .id((d) => d.id)
+                            .distance(50),
+                    )
+                    .on('tick', () => {
+                        // Update the position of the related words
+                        let relationsFlat = value.map((wordRelation) => wordRelation.relations).flat();
+                        let relationsFlatNodes = relationsFlat.map((wordRelation) => [wordRelation.source, wordRelation.target, wordRelation.score]);
+                        linkUpdate = svg.selectAll('.link').data(relationsFlatNodes);
+                        linkEnter
+                            .merge(linkUpdate)
+                            .attr('x1', (d) => {console.log(d[0].x) ;return d[0].x})
+                            .attr('y1', (d) => d[0].y)
+                            .attr('x2', (d) => d[1].x)
+                            .attr('y2', (d) => d[1].y)
+                            .attr('stroke-width', (d) => 1.5)
+                            .attr('opacity', (d) => d[2]);
+                        
+                        groupEnter.merge(groupUpdate).style('transform', (d) => `translate(${d.x}px,${d.y}px)`);
+                    });
+            
+        });
     });
     function updateGraph(textModels) {
         textModels.map((textModel, textModelIndex) => {

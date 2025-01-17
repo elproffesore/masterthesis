@@ -115,7 +115,6 @@ export function semanticalySimilarWords(words, top_n) {
                     bag.push(word);
                 }
             });
-            console.log(bag);
             return {bag,words};
         });
 }

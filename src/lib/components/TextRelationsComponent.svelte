@@ -58,7 +58,7 @@
                 return line([controlPoint1, controlPoint2, controlPoint3, controlPoint4]);
             })
             .attr('stroke-width', (d) => ($connectionsVisibility ? 1 : 0))
-            .attr('opacity', (d) => d.opacity);
+            .attr('opacity', (d) => 0.5);
     }
 </script>
 
