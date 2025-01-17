@@ -2,7 +2,7 @@
     import { markingType } from '$lib/stores';
     import { timelineVisibility, connectionsVisibility, nodesVisibility, graphVisibility, markingColor, textCollapse } from '$lib/stores';
     import { colors } from '$lib/utils';
-    let optionsVisibility = $state(true);
+    let optionsVisibility = $state(false);
     let colorVisibility = $state(true);
     let viewsVisibility = $state(true);
     let stylesVisibility = $state(true);

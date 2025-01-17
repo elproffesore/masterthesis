@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import { relations, textModels, nodesVisibility, timelineVisibility, graphVisibility, words } from '$lib/stores';
+    import { relations, textModels, nodesVisibility, timelineVisibility, graphVisibility, words, wordRelations } from '$lib/stores';
     import CommentDialogComponent from './CommentDialogComponent.svelte';
     import { textCollapse } from '$lib/stores';
     import { semanticalyRelativeWordsInText, getMostRightNode, powScale, semanticalySimilarWords } from '$lib/utils';
@@ -19,7 +19,7 @@
 
         semanticalyRelativeWordsInText(textModel.text.split(' ')[0], $words)
             .then((words) => {
-                textModel.relatedWords = words
+                textModel.relatedWords = words;
                 words.map((word, i) => {
                     let node = document.querySelector('.' + word.word);
                     if (node) {
@@ -48,16 +48,29 @@
             })
             .then(() => {
                 semanticalySimilarWords(textModel.text, 50).then((words) => {
-                    console.log(words);
-                    words.sort((a, b) => b.score - a.score) // sort by score
+                    words.bag
+                        .sort((a, b) => b.score - a.score) // sort by score
                         .slice(0, 3) // get the top 5 words
                         .map((word) => {
-                            word.color = "red";
-                            textModel.relatedWords.push(word)
+                            word.color = 'red';
+                            textModel.relatedWords.push(word);
+                            return word;
+                        })
+                        .map((word) => {
+                            let wordRelation = $wordRelations.some((wordRelation) => wordRelation.word == word.word);
+                            if (wordRelation) {
+                                wordRelation.relations.push({ source: textModel.text, target:word.word , score: word.score });
+                            } else {
+                                $wordRelations.push({type:"relation", id: word.word, relations: [{ source: textModel.text,target:word.word , score: word.score }] });
+                            }
                         });
+                        let textModelDimensions = textModel.referenceNode.getBoundingClientRect();
+                        $wordRelations.push({type:"root", id: textModel.text, node:textModel, relations:[], fx:textModelDimensions.x + textModelDimensions.width / 2, fy:textModelDimensions.y + textModelDimensions.height / 2});
+                    
                     // Update the relations array to propagate the change in the model node
                     $textModels = $textModels;
                     $relations = $relations;
+                    $wordRelations = $wordRelations;
                 });
             });
         $textModels = $textModels;

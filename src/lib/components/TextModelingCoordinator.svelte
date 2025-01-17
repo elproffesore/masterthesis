@@ -2,7 +2,6 @@
     import { textModels, relations, markingColor } from '$lib/stores';
     import { getMostRightNode, findSpanParentRecursive, opacityRegex, getMostLeftNode } from '$lib/utils';
     import TextModel from '$lib/components/TextModel.svelte';
-    import TextRelationsCoordinator from '$lib/components/TextRelationsCoordinator.svelte';
     import { onMount } from 'svelte';
     import rangy from 'rangy';
     import TimelineComponent from './TimelineComponent.svelte';
@@ -10,6 +9,8 @@
     import { v4 as uuidv4 } from 'uuid';
     import { markingType } from '$lib/stores';
     import { graphVisibility } from '$lib/stores';
+    import GraphComponent from './GraphComponent.svelte';
+    import TextRelationsComponent from '$lib/components/TextRelationsComponent.svelte';
 
     onMount(() => {
         window.addEventListener('mouseup',(e) => {
@@ -99,7 +100,8 @@
 </script>
 
 <LayerOptions />
-<TextRelationsCoordinator />
+<TextRelationsComponent />
+<GraphComponent />
 <div class="w-full h-full top-0 left-0 fixed z-0 transition-all duration-1000">
     {#each $textModels as _, i}
         <TextModel bind:textModel={$textModels[i]} />
