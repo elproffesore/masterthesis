@@ -19,22 +19,14 @@
 
         semanticalyRelativeWordsInText(textModel.text.split(' ')[0], $words)
             .then((words) => {
-                console.log(words);
-                words = words
-                    .filter((word) => word[1] > 0.3) // remove words with a low score
-                    .filter((word) => word[0].length > 2) // remove words with a length less than 2
-                    .filter((word) => word[0].search(/[^a-zA-Z]/g) == -1) // remove the word itself
-                    .sort((a, b) => b[1] - a[1]) // sort by score
-                    .slice(0, 3); // get the top 5 words
-
-                textModel.relatedWords = words;
+                textModel.relatedWords = words
                 words.map((word, i) => {
-                    let node = document.querySelector('.' + word[0]);
+                    let node = document.querySelector('.' + word.word);
                     if (node) {
                         node.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
                         let boundingClientRectText = getMostRightNode([node]).getBoundingClientRect();
                         let textNode = {
-                            text: word[0],
+                            text: word.word,
                             x: boundingClientRectText.x,
                             y: boundingClientRectText.y,
                             nodes: [node],
@@ -53,45 +45,21 @@
                         textModel.relations.push($relations[relationsLength - 1]);
                     }
                 });
-                $textModels = $textModels;
-                $relations = $relations;
             })
             .then(() => {
                 semanticalySimilarWords(textModel.text, 50).then((words) => {
-                    let textModelParts = textModel.text
-                        .split(' ')
-                        .map((word) => word.replace(/[^a-zA-Z]/g, ''))
-                        .map((word) => winkUtils.string.stem(word))
-                        .filter((word) => word.length > 1);
-
-                    words = words
-                        .filter((word) => word.word.length > 2) // remove words with a length less than 2
-                        .filter((word) => word.word.search(/[^a-zA-Z]/g) == -1)
-                        .filter((word) => !/[a-z][A-Z]/.test(word.word))
-                        .filter((word) => !textModelParts.some((part) => levenshtein(part, word.word) < 3))
-                        .filter(
-                            (word) =>
-                                !new RegExp(String.raw`${textModelParts.toString().replaceAll(',', '|')}`, 'gi').test(
-                                    word.word,
-                                ),
-                        );
-
-                    let bag = [];
-                    words.map((word) => {
-                        if (!bag.some((bagWord) => levenshtein(bagWord.word, word.word) < 5)) {
-                            bag.push(word);
-                        }
-                    });
-
-                    bag.sort((a, b) => b.score - a.score) // sort by score
+                    console.log(words);
+                    words.sort((a, b) => b.score - a.score) // sort by score
                         .slice(0, 3) // get the top 5 words
-                        .map((word) => textModel.relatedWords.push([word.word, word.score, 'red']));
-
+                        .map((word) => {
+                            word.color = "red";
+                            textModel.relatedWords.push(word)
+                        });
+                    // Update the relations array to propagate the change in the model node
+                    $textModels = $textModels;
                     $relations = $relations;
                 });
             });
-
-        // Update the relations array to propagate the change in the model node
         $textModels = $textModels;
         $relations = $relations;
     });
@@ -122,25 +90,16 @@
     }
     function displayCommentButton(event) {
         event.preventDefault();
-        // $relations.filter(relation => relation.target.id == textModel.id).map(relation => {
-        //     relation.opacity = 1;
-        //     $relations = $relations
-        // })
         commentFunctionDisplay = true;
     }
     function hideCommentButton() {
         event.preventDefault();
-        // $relations.filter(relation => relation.target.id == textModel.id).map(relation => {
-        //     relation.opacity = 0;
-        //     $relations = $relations
-        // })
         commentFunctionDisplay = false;
         commentFunctionActive = false;
     }
     let currentShownRelation = 0;
     function scrollToText(event) {
         event.preventDefault();
-        console.log(textModel.relations);
         if (!moving && !$graphVisibility) {
             textModel.relations[currentShownRelation].source.nodes[0].scrollIntoView({
                 behavior: 'smooth',

@@ -61,7 +61,6 @@
     <div
         id="textWrapper"
         class="ml-8 w-1/3 mt-8 absolute left-0 z-10 transition-all duration-1000"
-        style:left={$graphVisibility ? '-40%' : '0'}
         bind:this={doc}>
     </div>
     <TextModelingCoordinator />

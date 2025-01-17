@@ -25,11 +25,11 @@
                 <input name="timeline" type="checkbox" class="" bind:checked={$timelineVisibility} />
                 Timeline</label>
         </div>
-        <div class="flex gap-2 ">
+        <!-- <div class="flex gap-2 ">
             <label for="graph">
                 <input name="graph" type="checkbox" class="" bind:checked={$graphVisibility} />
                 Graph</label>
-        </div>
+        </div> -->
         {/if}
     </div>
     <div id="styles" class="flex flex-col gap-2 items-start">
