@@ -101,10 +101,12 @@
             if(!relatedWordsArray[textModelIndex]){
                 relatedWordsArray[textModelIndex] = textModel.relatedWords;
             }
+            // Create Group for each textModel
             let graphTextGroup = svg.selectAll(`#graph-${textModel.id}`).data([textModel]);
             graphTextGroup.exit().remove();
             let graphTextGroupEnter = graphTextGroup.enter().append('g').attr('id', `graph-${textModel.id}`);
 
+            // Create Text for each related word
             let graphtext = graphTextGroupEnter.selectAll('text').data(relatedWordsArray[textModelIndex]);
             graphtext.exit().remove();
 
@@ -113,37 +115,49 @@
                 .append('text')
                 .attr('fill', (d) => d.length > 2 ?d[2]:'#111111aa')
                 .attr('font-size', (d) => `${1+powScale(d[1])*40}px`)
+                .attr('text-anchor', 'middle')
                 .text((d) => d[0]);
             
+            // Create Links for each related word to the textModel
+            let graphLink = graphTextGroupEnter.selectAll('line').data(relatedWordsArray[textModelIndex]);
+            graphLink.exit().remove();
+            let graphLinkEnter = graphLink
+                .enter()
+                .append('line')
+                .attr('stroke', '#11111144')
+                .attr('stroke-width', 1)
+                .attr('opacity', 0.5)
+            
+                // Create Simulation for each textModel
             let textModelNode = document.querySelector(`#textModel-${textModel.id}`)?.getBoundingClientRect() ?? null;
-
-            // relatedWordsArray[textModelIndex].map((word, index) => {
-            //     word.fx = textModel.x+40;
-            //     word.fy = textModel.y+40;
-            // });
             if(textModelNode == null){
                 return;
             }
             if (!simulationArray[textModelIndex]) {
                 const simulation = d3
                     .forceSimulation(relatedWordsArray[textModelIndex])
-                    .alphaTarget(0.3)
-                    .force("collide", d3.forceCollide().radius(50))
-                    .force('charge', d3.forceManyBody().strength(-30))
-                    .force('radial', d3.forceRadial(150, textModelNode.left+textModelNode.width/2, textModelNode.top+textModelNode.height/2).strength(0.3))
-
+                    .alphaTarget(0.6)
+                  
                 simulation.on('tick', () => {
+                    // Update the position of the text and links
                     graphtextEnter.merge(graphtext).style('transform', function (d, i) {
                         return `translate(${d.x}px,${d.y}px)`;
                     });
+                    let textModelNode = document.querySelector(`#textModel-${textModel.id}`)?.getBoundingClientRect() ?? null;
+                    graphLinkEnter.merge(graphLink)
+                        .attr('x1', (d) => d.x)
+                        .attr('y1', (d) => d.y)
+                        .attr('x2', textModelNode.left+textModelNode.width/2)
+                        .attr('y2', textModelNode.top+textModelNode.height/2);
                 });
                 simulationArray[textModelIndex] = simulation;
             }else{
+                // Update the forces of the simulation
                 simulationArray[textModelIndex]
-                .force('radial', d3.forceRadial(150, textModelNode.left+textModelNode.width/2, textModelNode.top+textModelNode.height/2).strength(0.3))
-                .force('charge', d3.forceManyBody().strength(-30))
+                .force('radial', d3.forceRadial(100, textModelNode.left+textModelNode.width/2, textModelNode.top+textModelNode.height/2).strength(0.3))
+                .force('charge', d3.forceManyBody().strength(-40))
                 .force("collide", d3.forceCollide().radius(50))
-
+                .force("center", d3.forceCenter(textModelNode.left+textModelNode.width/2, textModelNode.top+textModelNode.height/2).strength(0.4))
             }
         });
     }
