@@ -1,12 +1,16 @@
 <script>
     import { onMount } from 'svelte';
-    import { relations, textModels, nodesVisibility, timelineVisibility, graphVisibility, words, wordRelations } from '$lib/stores';
+    import { relations, textModels, nodesVisibility, timelineVisibility, graphVisibility, textCollapse, words, wordRelations } from '$lib/stores';
+    import { semanticalyRelativeWordsInText, getMostRightNode, powScale, semanticalySimilarWords, createSetFromArrays, removeDuplicateObjects } from '$lib/utils';
     import CommentDialogComponent from './CommentDialogComponent.svelte';
-    import { textCollapse } from '$lib/stores';
-    import { semanticalyRelativeWordsInText, getMostRightNode, powScale, semanticalySimilarWords } from '$lib/utils';
-    import { text } from '@sveltejs/kit';
     import winkUtils from 'wink-nlp-utils';
     import levenshtein from 'js-levenshtein';
+    import winkNLP from 'wink-nlp';
+    import model from 'wink-eng-lite-web-model';
+    import { text } from '@sveltejs/kit';
+    const nlp = winkNLP(model);
+    const its = nlp.its;
+    const as = nlp.as;
 
     let { textModel = $bindable() } = $props();
     let object;
@@ -16,73 +20,68 @@
 
     onMount(() => {
         textModel.referenceNode = object;
-
-        semanticalyRelativeWordsInText(textModel.text.split(' ')[0], $words)
-            .then((words) => {
-                textModel.relatedWords = words;
-                words.map((word, i) => {
-                    let node = document.querySelector('.' + word.word);
-                    if (node) {
-                        node.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
-                        let boundingClientRectText = getMostRightNode([node]).getBoundingClientRect();
-                        let textNode = {
-                            text: word.word,
-                            x: boundingClientRectText.x,
-                            y: boundingClientRectText.y,
-                            nodes: [node],
-                            opacity: 1,
-                            createdAt: new Date().getTime(),
-                            changedAt: new Date().getTime(),
-                        };
-                        // Connect the text node with the logical node
-                        let relationsLength = $relations.push({
-                            source: textNode,
-                            target: textModel,
-                            createdAt: new Date().getTime(),
-                            changedAt: new Date().getTime(),
-                            opacity: 1,
-                        });
-                        textModel.relations.push($relations[relationsLength - 1]);
-                    }
-                });
-                return words
-            })
-            .then((textWords) => {
-                semanticalySimilarWords(textModel.text, 50).then((words) => {
-                    words.bag
-                        .sort((a, b) => b.score - a.score) // sort by score
-                        .slice(0, 3) // get the top 5 words
-                        .map((word) => {
-                            word.color = 'red';
-                            textModel.relatedWords.push(word);
-                            return word;
-                        })
-                        .map((word) => {
-                            let wordRelation = $wordRelations.find((wordRelation) => wordRelation.id == word.word);
-                            if (wordRelation) {
-                                wordRelation.relations.push({ source: textModel.text, target:word.word , score: word.score });
-                            } else {
-                                $wordRelations.push({type:"relation", id: word.word, relations: [{ source: textModel.text, target:word.word , score: word.score }] });
-                            }
-                        });
-                    textWords.map((word) => {
-                            let wordRelation = $wordRelations.find((wordRelation) => wordRelation.id == word.word);
-                            if (wordRelation) {
-                                wordRelation.relations.push({ source: textModel.text, target:word.word , score: word.score });
-                            } else {
-                                $wordRelations.push({type:"relation", id: word.word, relations: [{ source: textModel.text, target:word.word , score: word.score }] });
-                            }
-                        });
-                    let textModelDimensions = textModel.referenceNode.getBoundingClientRect();
-                    $wordRelations.push({type:"root", id: textModel.text, node:textModel, relations:[],x: textModelDimensions.x + textModelDimensions.width / 2,fx:textModelDimensions.x + textModelDimensions.width / 2,y: textModelDimensions.y + textModelDimensions.height / 2, fy:textModelDimensions.y + textModelDimensions.height / 2});
-                    $wordRelations = [...$wordRelations];
-                    $relations = [...$relations];
-                    // Update the relations array to propagate the change in the model node
-                });
-            });
+        textModel.text = textModel.text.replace(/[^a-z\sA-Z]/g, '');
+        if(textModel.text.trim().split(' ').length < 5){
+            retrieveRelatedWordsFromText();
+        }
         $textModels = [...$textModels];
         $relations = [...$relations];
     });
+    async function retrieveRelatedWordsFromText(){
+        let doc = nlp.readDoc(textModel.text);
+            doc = doc
+                .tokens()
+                .filter((t) => !t.out(its.stopWordFlag))
+                .out();
+            let allRelatedWords = await Promise.all(
+                doc.map(async (word) => {
+                    let foundWords = await semanticalyRelativeWordsInText(word, $words);
+                    return foundWords;
+                }),
+            );
+            allRelatedWords = removeDuplicateObjects(allRelatedWords.flat());
+            allRelatedWords
+                .filter((word) => !doc.some((part) => levenshtein(part, word.word) < 5))
+                .filter((word) => word.score != 1 && word.score > 0.3)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 20)
+                .map((word) => {
+                let node = document.querySelector('.' + word.word);
+                if (node && word.score > 0.53) {
+                    node.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+                    let boundingClientRectText = getMostRightNode([node]).getBoundingClientRect();
+                    let textNode = {
+                        text: word.word,
+                        x: boundingClientRectText.x,
+                        y: boundingClientRectText.y,
+                        nodes: [node],
+                        opacity: 1,
+                        createdAt: new Date().getTime(),
+                        changedAt: new Date().getTime(),
+                    };
+                    // Connect the text node with the logical node
+                    let relationsLength = $relations.push({
+                        source: textNode,
+                        target: textModel,
+                        createdAt: new Date().getTime(),
+                        changedAt: new Date().getTime(),
+                        opacity: 1,
+                    });
+                    textModel.relations.push($relations[relationsLength - 1]);
+                }
+                let wordRelation = $wordRelations.findIndex((wordRelation) => wordRelation.id == word.word);
+                if (wordRelation != -1) {
+                    $wordRelations[wordRelation].relations.push({ source: textModel.text, target: word.word, score: word.score });
+                } else {
+                    $wordRelations.push({ type: 'relation', id: word.word, relations: [{ source: textModel.text, target: word.word, score: word.score }] });
+                }
+            });
+            let textModelDimensions = textModel.referenceNode.getBoundingClientRect();
+            $wordRelations.push({ type: 'root', id: textModel.text, node: textModel, relations: [], x: textModelDimensions.x + textModelDimensions.width / 2, fx: textModelDimensions.x + textModelDimensions.width / 2, y: textModelDimensions.y + textModelDimensions.height / 2, fy: textModelDimensions.y + textModelDimensions.height / 2 });
+            $wordRelations = [...$wordRelations];
+            $relations = [...$relations];
+            //let answer = await semanticalyRelativeWordsInText(textModel.text.split(' ')[0], $words)
+    }
     function onMouseDown(event) {
         if (!commentFunctionActive) {
             event.preventDefault();
@@ -144,19 +143,7 @@
 
 <svelte:window onmouseup={onMouseUp} onmousemove={handleDrag} />
 <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events,a11y_mouse_events_have_key_events -->
-<div
-    bind:this={object}
-    id={'textModel-' + textModel.id}
-    class:hidden={!$nodesVisibility}
-    class="textModel absolute cursor-grab max-w-[300px] bg-[#fffff8]"
-    style:left={textModel.x + 'px'}
-    style:top={textModel.y + 'px'}
-    style:opacity={textModel.opacity}
-    draggable="true"
-    onmousedown={onMouseDown}
-    onclick={scrollToText}
-    onmouseenter={displayCommentButton}
-    onmouseleave={hideCommentButton}>
+<div bind:this={object} id={'textModel-' + textModel.id} class:hidden={!$nodesVisibility} class="textModel absolute cursor-grab max-w-[300px]" style:left={textModel.x + 'px'} style:top={textModel.y + 'px'} style:opacity={textModel.opacity} draggable="true" onmousedown={onMouseDown} onclick={scrollToText} onmouseenter={displayCommentButton} onmouseleave={hideCommentButton}>
     <span class="markedText {$textCollapse ? 'line-clamp-1' : ''}">{textModel.text}</span>
     <!-- {#if !$graphVisibility}
         <div>

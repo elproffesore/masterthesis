@@ -17,16 +17,16 @@
     onMount(() => {
         svg = d3.select('#relations');
         window.addEventListener('scroll', () => {
-            $relations = $relations;
+            $relations = [...$relations];
         });
         relations.subscribe((value) => {
             updateRelations($relations);
         });
         timelineVisibility.subscribe((value) => {
-            $relations = $relations;
+            $relations = [...$relations];
         });
         connectionsVisibility.subscribe((value) => {
-            $relations = $relations;
+            $relations = [...$relations];
         });
     });
 
@@ -57,9 +57,9 @@
                 let controlPoint4 = { x: targetNode.x - 5, y: targetNode.y + targetNode.height / 2 };
                 return line([controlPoint1, controlPoint2, controlPoint3, controlPoint4]);
             })
-            .attr('stroke-width', (d) => ($connectionsVisibility ? 1 : 0))
-            .attr('opacity', (d) => 0.5);
+            .attr('stroke-width', (d) => ($connectionsVisibility ? 1.5 : 0))
+            .attr('opacity', (d) => $timelineVisibility? d.opacity: 0.3);
     }
 </script>
 
-<svg id="relations" class:hidden={!$nodesVisibility} class="w-[200vw] z-10 h-screen fixed pointer-events-none top-0 left-0 transition-all duration-1000"></svg>
+<svg id="relations" class:hidden={!$nodesVisibility || $graphVisibility} class="w-[200vw] z-10 h-screen fixed pointer-events-none top-0 left-0 transition-all duration-1000"></svg>

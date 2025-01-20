@@ -1,14 +1,14 @@
 <script>
-    import { markingType } from '$lib/stores';
+    import { drawingVisibility, markingType } from '$lib/stores';
     import { timelineVisibility, connectionsVisibility, nodesVisibility, graphVisibility, markingColor, textCollapse } from '$lib/stores';
     import { colors } from '$lib/utils';
-    let optionsVisibility = $state(false);
+    let optionsVisibility = $state(true);
     let colorVisibility = $state(true);
     let viewsVisibility = $state(true);
     let stylesVisibility = $state(true);
     let visualVisibility = $state(true);
 </script>
-<div class="flex gap-2 fixed items-start top-4 right-4 z-[20]">
+<div class="flex gap-2 fixed items-start top-4 right-4 z-[110]">
     <div class="flex gap-2">
         <label for="options" class="font-bold">
             <input name="options" type="checkbox" bind:checked={optionsVisibility} />
@@ -25,11 +25,16 @@
                 <input name="timeline" type="checkbox" class="" bind:checked={$timelineVisibility} />
                 Timeline</label>
         </div>
-        <!-- <div class="flex gap-2 ">
+        <div class="flex gap-2 ">
             <label for="graph">
                 <input name="graph" type="checkbox" class="" bind:checked={$graphVisibility} />
                 Graph</label>
-        </div> -->
+        </div>
+        <div class="flex gap-2 ">
+            <label for="drawing">
+                <input name="drawing" type="checkbox" class="" bind:checked={$drawingVisibility} />
+                Drawing</label>
+        </div>
         {/if}
     </div>
     <div id="styles" class="flex flex-col gap-2 items-start">

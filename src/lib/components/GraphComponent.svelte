@@ -1,5 +1,5 @@
 <script>
-    import { graphVisibility, nodesVisibility, relations, textModels, wordRelations } from '$lib/stores';
+    import { graphVisibility, nodesVisibility, relations, textModels, timelineVisibility, wordRelations } from '$lib/stores';
     import { powScale } from '$lib/utils';
     import { onMount } from 'svelte';
     import * as d3 from 'd3';
@@ -27,23 +27,28 @@
                     }
                 });
         });
+        nodesVisibility.subscribe((value) => {
+           $wordRelations = [...$wordRelations];
+        });
         wordRelations.subscribe((value) => {
-            let groupUpdate = svg.selectAll('.wordRelations').data(value);
+            updateGraph(value)
+        });
+        function updateGraph(value){
+            let valueFiltered = value.filter((wordRelation) => wordRelation.relations.length > 1 || wordRelation.type == 'root')
+            let groupUpdate = svg.selectAll('.wordRelations').data(valueFiltered);
             groupUpdate.exit().remove();
             let groupEnter = groupUpdate
                 .enter()
-                .append('g')
-                .attr('class', 'wordRelations')
-                .attr('id', (d) => '#wordRelations-' + d.id);
-
-            groupEnter
                 .append('text')
-                .attr('fill', (d) => (d.type == 'relation' ? '#ff1111aa' : 'none'))
-                .attr('font-size', (d) => `${15}px`)
+                .attr('class', 'wordRelations')
                 .attr('text-anchor', 'middle')
                 .attr('dominant-baseline', 'middle')
-                .text((d) => d.id);
-            let relationsFlat = value.map((wordRelation) => wordRelation.relations).flat();
+
+
+
+
+            let relationsFlat = valueFiltered.map((wordRelation) => wordRelation.relations).flat()
+            console.log(relationsFlat,valueFiltered);
             let relationsFlatNodes = relationsFlat.map((wordRelation) => [wordRelation.source, wordRelation.target, wordRelation.score]);
             let linkUpdate = svg.selectAll('.link').data(relationsFlatNodes);
             linkUpdate.exit().remove();
@@ -51,104 +56,62 @@
                 .enter()
                 .append('line')
                 .attr('class', 'link')
+                .attr('stroke-width', (d) => 1)
                 .attr('stroke', '#000000')
 
             if (simulation == null) {
                 simulation = d3
-                    .forceSimulation(value)
-                    .force('charge', d3.forceManyBody().strength(-75))
-                    .force('collide', d3.forceCollide().radius(30))
-                    .alphaTarget(0.6)
+                    .forceSimulation(valueFiltered)
+                    .force('collide', d3.forceCollide().radius(50))
+                    
+                    .alphaTarget(0.3)
 
             } 
-                simulation.nodes(value);
+                simulation.nodes(valueFiltered);
                 simulation
                     .force(
                         'link',
                         d3
                             .forceLink(relationsFlat)
                             .id((d) => d.id)
-                            .distance(50),
+                            .distance(30),
                     )
                     .on('tick', () => {
                         // Update the position of the related words
-                        let relationsFlat = value.map((wordRelation) => wordRelation.relations).flat();
+                        let relationsFlat = valueFiltered.map((wordRelation) => wordRelation.relations).flat()
                         let relationsFlatNodes = relationsFlat.map((wordRelation) => [wordRelation.source, wordRelation.target, wordRelation.score]);
                         linkUpdate = svg.selectAll('.link').data(relationsFlatNodes);
                         linkEnter
                             .merge(linkUpdate)
-                            .attr('x1', (d) => {console.log(d[0].x) ;return d[0].x})
+                            .attr('x1', (d) => d[0].x)
                             .attr('y1', (d) => d[0].y)
                             .attr('x2', (d) => d[1].x)
                             .attr('y2', (d) => d[1].y)
-                            .attr('stroke-width', (d) => 1.5)
-                            .attr('opacity', (d) => d[2]);
+                            .attr('opacity', (d) => powScale(d[2],10));
                         
-                        groupEnter.merge(groupUpdate).style('transform', (d) => `translate(${d.x}px,${d.y}px)`);
+                        groupEnter.merge(groupUpdate)
+                        .style('transform', (d) => `translate(${d.x}px,${d.y}px)`)
+                        .attr('font-size', (d) => {
+                            if(d.relations.length == 0){
+                                return '0px'
+                            }else{
+                                let max = d.relations.map(d => {
+                                    if(d.score != NaN){
+                                        return d.score
+                                    }else{
+                                        return 0
+                                    }
+                                });
+                                max = max.reduce((acc, num) => acc+num, 0)/d.relations.length;
+                                console.log(max);
+                                return`${powScale(max,3 )*45}px`
+                            }
+                        })
+                        .attr('fill', (d) => d.type == 'relation' ? '#ff1111' : 'none')
+                        .text((d) => d.id);
                     });
-            
-        });
+        }
     });
-    function updateGraph(textModels) {
-        textModels.map((textModel, textModelIndex) => {
-            if (!relatedWordsArray[textModelIndex]) {
-                relatedWordsArray[textModelIndex] = textModel.relatedWords;
-                svg.append('g').attr('id', `graph-${textModel.id}`);
-            }
-            if (relatedWordsArray[textModelIndex].length != textModel.relatedWords.length) {
-                relatedWordsArray[textModelIndex] = textModel.relatedWords;
-            }
-            if (simulationArray[textModelIndex]) {
-                simulationArray[textModelIndex].nodes = relatedWordsArray[textModelIndex];
-                simulationArray[textModelIndex].restart();
-            }
-            // Create Text for each related word
-            let graphtextUpdate = svg.select(`#graph-${textModel.id}`).selectAll('text').data(relatedWordsArray[textModelIndex]);
-
-            graphtextUpdate.exit().remove();
-
-            let graphtextEnter = graphtextUpdate
-                .enter()
-                .append('text')
-                .attr('fill', (d) => d?.color ?? '#111111aa')
-                .attr('font-size', (d) => `${15 + powScale(d.score, 3) * 30}px`)
-                .attr('text-anchor', 'middle')
-                .text((d) => d.word);
-
-            // Create Links for each related word to the textModel
-            // let graphLink = svg.select(`#graph-${textModel.id}`).selectAll('line').data(relatedWordsArray[textModelIndex]);
-            // graphLink.exit().remove();
-            // let graphLinkEnter = graphLink.enter().append('line').attr('stroke', '#11111144').attr('stroke-width', 1).attr('opacity', 0.5);
-
-            // Create Simulation for each textModel
-            if (!simulationArray[textModelIndex] && relatedWordsArray[textModelIndex].length > 0) {
-                const simulation = d3.forceSimulation(relatedWordsArray[textModelIndex]).alphaTarget(0.6);
-
-                simulation.on('tick', () => {
-                    let textModelNode = document.querySelector(`#textModel-${textModel.id}`)?.getBoundingClientRect() ?? null;
-                    // Update the position of the force according to the new position of the model
-                    simulation
-                        .force('radial', d3.forceRadial(100, textModelNode.left + textModelNode.width / 2, textModelNode.top + textModelNode.height / 2).strength(0.3))
-                        .force('charge', d3.forceManyBody().strength(-40))
-                        .force('collide', d3.forceCollide().radius(50))
-                        .force('center', d3.forceCenter(textModelNode.left + textModelNode.width / 2, textModelNode.top + textModelNode.height / 2).strength(0.4));
-
-                    // Update the position of the text and links
-                    graphtextEnter.merge(graphtextUpdate).style('transform', function (d, i) {
-                        return `translate(${d.x}px,${d.y}px)`;
-                    });
-                    // graphLinkEnter
-                    //     .merge(graphLink)
-                    //     .attr('x1', (d) => d.x)
-                    //     .attr('y1', (d) => d.y)
-                    //     .attr('x2', textModelNode.left + textModelNode.width / 2)
-                    //     .attr('y2', textModelNode.top + textModelNode.height / 2);
-                });
-
-                simulationArray[textModelIndex] = simulation;
-            }
-        });
-    }
 </script>
 
-<svg id="graph" class:hidden={!$nodesVisibility} class="w-[200vw] z-10 h-screen fixed pointer-events-none top-0 left-0 transition-all duration-1000"></svg>
+<svg id="graph" class:hidden={!$graphVisibility} class="w-[200vw] z-10 h-screen fixed pointer-events-none top-0 left-0 transition-all duration-1000"></svg>

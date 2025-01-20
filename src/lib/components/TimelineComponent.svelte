@@ -1,6 +1,5 @@
 <script>
-    import { textModels } from '$lib/stores';
-    import { relations, timelineVisibility } from '$lib/stores';
+    import { relations,textModels, timelineVisibility } from '$lib/stores';
     import moment from 'moment';
     import { onMount } from 'svelte';
 
@@ -11,10 +10,13 @@
     let timelineElement;
     let pointerPosition = $state(0);
     onMount(() => {
+        relations.subscribe(() => {
+            timeStampsSorted = $relations.map((relation) => relation.target.createdAt).sort((a, b) => a - b);
+        });
         timelineVisibility.subscribe((value) => {
             if (!value) {
                 $relations.map((relation) => {
-                    relation.target.opacity = 1;
+                    $textModels.find((t) => t.id == relation.target.id).opacity = 1;
                     relation.opacity = 1;
                 });
             } else {
@@ -53,26 +55,26 @@
     }
     function scalePointerPosition(index) {
         let absDifference = index - pointer;
-        let scale = 1 / (Math.pow(absDifference, 2) * 2 + 1);
+        let scale = 1 / (Math.pow(absDifference, 2) + 1);
         return scale;
     }
     function updateOpacities(){
         let relationScores = {};
         $relations.map((relation, relationIndex) => {
-            let newOpacity = 0 + scalePointerPosition(relationIndex);
-            relationScores[relation.target.id] = Math.max(relationScores[relation.target.id] || 0, scalePointerPosition(relationIndex));
-            relation.opacity = scalePointerPosition(relationIndex);
+            relationScores[relation.target.id] = Math.max(relationScores[relation.target.id] || 0, 0.1 + scalePointerPosition(relationIndex) * 0.9);
+            relation.opacity = 0.1 + scalePointerPosition(relationIndex) * 0.9;
         });
         Object.keys(relationScores).map((key) => {
             $textModels.find((t) => t.id == key).opacity = relationScores[key];
         });
-        $relations = $relations;
+        $textModels = [...$textModels];
+        $relations = [...$relations];
     }
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-    class="fixed bottom-4 w-min left-[80%] translate-x-[-50%] flex items-end h-16"
+    class="fixed bottom-4 w-min left-[45%] flex items-end h-16"
     style:visibility={$timelineVisibility ? 'visible' : 'hidden'}
     onmousemove={updateTimeLinePointer}>
     <div bind:this={timelineElement} class="w-max flex items-end gap-2 z-1">

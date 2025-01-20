@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { marked } from 'marked';
-    import { text, words } from '$lib/stores';
+    import { docHeight, text, words } from '$lib/stores';
     import TextModelingCoordinator from '$lib/components/TextModelingCoordinator.svelte';
     import { graphVisibility } from '$lib/stores';
     import posTagger from 'wink-pos-tagger';
@@ -16,7 +16,7 @@
         let rawText = await file.text();
         rawText = rawText
             .split('\n')
-            .slice(0,10)
+            //.slice(0,10)
             .map((line) => line + '\r\r')
             .join('');
 
@@ -54,14 +54,16 @@
                 child.appendChild(span);
             });
         }
+        $docHeight = doc.getBoundingClientRect().height;
     });
 </script>
 
 <div class="">
-    <div
+    <div 
         id="textWrapper"
-        class="ml-8 w-1/3 mt-8 absolute left-0 z-10 transition-all duration-1000"
-        bind:this={doc}>
+        class="ml-8 w-[40%] mt-8 absolute left-0 top-0 z-10 transition-all duration-1000"
+        bind:this={doc}
+        >
     </div>
     <TextModelingCoordinator />
 </div>

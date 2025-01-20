@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
-import winkUtils from 'wink-nlp-utils';
-import levenshtein from 'js-levenshtein';
+import { semanticalyRelativeWordsInText, semanticalySimilarWords } from './api';
+export { semanticalyRelativeWordsInText, semanticalySimilarWords };
 export const colors = ['rgba(255,0,255,1)', 'rgba(0, 255, 0,1)', 'rgba(255, 255, 0,1)'];
 export function nameShortener(string) {
     if (string.length > 20) {
@@ -51,73 +51,65 @@ export function findSpanParentRecursive(node, level = 0) {
     // Recursively get the parent node and check if it is a span
     return findSpanParentRecursive(node.parentNode, level + 1);
 }
-export function semanticalyRelativeWordsInText(word, words) {
-    return fetch('http://localhost:8000/similarity', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            main_word: word,
-            words: words,
-        }),
-    })
-        .then((relatedWordsRequest) => relatedWordsRequest.json())
-        .then((relatedWordsJson) => {
-            let array = Object.keys(relatedWordsJson.similarity_scores)
-                .map((key) => [key, relatedWordsJson.similarity_scores[key]])
-                .sort((a, b) => b[1] - a[1])
-                .filter((word) => word[1] > 0.3) // remove words with a low score
-                .filter((word) => word[0].length > 2 && word[0].length < 15) // remove words with a length less than 2
-                .filter((word) => word[0].search(/[^a-zA-Z]/g) == -1) // remove the word itself
-                .sort((a, b) => b[1] - a[1]) // sort by score
-                .slice(0, 3) // get the top 5 words
-                .map((word) => {return {word: word[0], score: word[1]}});
-            return array;
-        });
-}
-export function semanticalySimilarWords(words, top_n) {
-    words = words
-        .trim()
-        .split(' ')
-        .map((word) => word.replace(/[^a-zA-Z]/g, ''))
-        .map((word) => winkUtils.string.stem(word))
-        .filter((word) => word.length > 1);
 
-    return fetch('http://localhost:8000/similar', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            words,
-            top_n,
-        }),
-    })
-        .then((relatedWordsRequest) => relatedWordsRequest.json())
-        .then((relatedWordsJson) => {
-            let similar_words = relatedWordsJson.similar_words;
-            similar_words = similar_words
-                .filter((word) => word.word.length > 3 && word.word.length < 15) // remove words with a length less than 2
-                .filter((word) => word.word.search(/[^a-zA-Z]/g) == -1)
-                .filter((word) => !/[a-z][A-Z]/.test(word.word))
-                .filter((word) => !words.some((part) => levenshtein(part, word.word) < 4))
-                .filter(
-                    (word) =>
-                        !new RegExp(String.raw`${words.toString().replaceAll(',', '|')}`, 'gi').test(
-                            word.word,
-                        ),
-                );
-
-            let bag = [];
-            similar_words.map((word) => {
-                if (!bag.some((bagWord) => levenshtein(bagWord.word, word.word) < 5)) {
-                    bag.push(word);
-                }
-            });
-            return {bag,words};
-        });
-}
 export function powScale(value, pow) {
-    return d3.scalePow().exponent(pow)(value);
+    return d3.scalePow().domain([0,0.7]).range([0,1]).exponent(pow)(value);
+}
+export function createRelation(){
+
+}
+export function createSetFromArrays(arrays) {
+    const set = new Set();
+    arrays.forEach(array => {
+        array.forEach(obj => {
+            set.add(JSON.stringify(obj));
+        });
+    });
+    return Array.from(set).map(item => JSON.parse(item));
+}
+export function removeDuplicateObjects(array) {
+    const uniqueObjects = new Set();
+    return array.filter(obj => {
+        const objString = JSON.stringify(obj);
+        if (uniqueObjects.has(obj.word)) {
+            return false;
+        } else {
+            uniqueObjects.add(obj.word);
+            return true;
+        }
+    });
+}
+const average = (a, b) => (a + b) / 2
+
+export function getSvgPathFromStroke(points, closed = true) {
+  const len = points.length
+
+  if (len < 4) {
+    return ``
+  }
+
+  let a = points[0]
+  let b = points[1]
+  const c = points[2]
+
+  let result = `M${a[0].toFixed(2)},${a[1].toFixed(2)} Q${b[0].toFixed(
+    2
+  )},${b[1].toFixed(2)} ${average(b[0], c[0]).toFixed(2)},${average(
+    b[1],
+    c[1]
+  ).toFixed(2)} T`
+
+  for (let i = 2, max = len - 1; i < max; i++) {
+    a = points[i]
+    b = points[i + 1]
+    result += `${average(a[0], b[0]).toFixed(2)},${average(a[1], b[1]).toFixed(
+      2
+    )} `
+  }
+
+  if (closed) {
+    result += 'Z'
+  }
+
+  return result
 }
