@@ -35,11 +35,6 @@
                 <input name="drawing" type="checkbox" class="" bind:checked={$drawingVisibility} />
                 Drawing</label>
         </div>
-        <div class="flex gap-2 ">
-            <label for="drawing-fixed">
-                <input name="drawing-fixed" type="checkbox" class="" bind:checked={$drawingFixedVisibility} />
-                Drawing Fixed</label>
-        </div>
         {/if}
     </div>
     <div id="styles" class="flex flex-col gap-2 items-start">

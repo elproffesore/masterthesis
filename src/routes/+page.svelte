@@ -61,7 +61,7 @@
 <div class="">
     <div 
         id="textWrapper"
-        class="ml-8 w-[40%] mt-8 absolute left-0 top-0 z-10 transition-all duration-1000"
+        class="ml-8 w-[35%] mt-8 absolute left-0 top-0 z-10 transition-all duration-1000"
         bind:this={doc}
         >
     </div>

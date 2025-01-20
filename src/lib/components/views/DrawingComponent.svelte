@@ -1,7 +1,7 @@
 <script>
     import { getStroke } from 'perfect-freehand';
     import { getSvgPathFromStroke } from '$lib/utils';
-    import { docHeight, drawingVisibility } from '$lib/stores';
+    import { docHeight, drawingVisibility, graphVisibility } from '$lib/stores';
 
     let points = $state([]);
     let paths = $state([]);
@@ -22,16 +22,17 @@
 
         let stroke = getStroke(points, {
             size: 5,
-            thinning: 0.5,
-            smoothing: 0.5,
-            streamline: 0.5,
+            thinning: 0.3,
+            smoothing: 0.8,
+            streamline: 0.7,
         });
 
         let pathData = getSvgPathFromStroke(stroke);
         paths = [...paths, pathData];
     }
 </script>
-<svg id="drawing-canvas" class:pointer-events-none={!$drawingVisibility} class="w-[100vw] z-[100] absolute top-0 left-0 transition-all duration-1000" style:height={$docHeight+'px'}  onpointerdown="{handlePointerDown}" onpointermove="{handlePointerMove}">
+<!-- class:hidden={$graphVisibility} -->
+<svg id="drawing-canvas"  class:pointer-events-none={!$drawingVisibility} class="w-[100vw] z-[100] absolute top-0 left-0 transition-all duration-1000" style:height={$docHeight+'px'}  onpointerdown="{handlePointerDown}" onpointermove="{handlePointerMove}">
     {#each paths as pathData}
         <path d={pathData} />
     {/each}

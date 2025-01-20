@@ -113,3 +113,42 @@ export function getSvgPathFromStroke(points, closed = true) {
 
   return result
 }
+export function interpolatePosition(points, singlePosition, scrollY) {
+    // Find the closest points before and after the single position
+    console.log(points)
+
+    let closestBefore = null;
+    let closestAfter = null;
+    points = points.sort((a, b) => a.scroll - b.scroll);
+    
+    for (let i = 0; i < points.length; i++) {
+        if (points[i].scroll >= scrollY) {
+            closestAfter = points[i];
+            if (i > 0) {
+                closestBefore = points[i - 1];
+            }
+            break;
+        }
+    }
+    
+    // If closestBefore or closestAfter is not found, return null (or handle accordingly)
+    if (closestBefore && !closestAfter) {
+        return { x: closestBefore.x, y: closestBefore.y };
+    }
+    console.log(closestBefore, closestAfter)
+    
+    // Calculate the scroll progress between closestBefore and closestAfter
+    const totalDistance = closestAfter.scroll - closestBefore.scroll;
+    const scrollDistance = scrollY - closestBefore.scroll;
+    let scrollProgress = 1
+    if(scrollDistance > 0){
+        scrollProgress = scrollDistance / totalDistance;
+    }
+
+    // Interpolate the x and y coordinates of singlePosition
+    const interpolatedX = closestBefore.x + scrollProgress * (closestAfter.x - closestBefore.x);
+    const interpolatedY = closestBefore.y + scrollProgress * (closestAfter.y - closestBefore.y);
+    
+    // Return the interpolated position
+    return { x: interpolatedX, y: interpolatedY };
+}

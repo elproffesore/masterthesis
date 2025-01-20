@@ -10,9 +10,6 @@
     let relatedWordsArray = [];
     onMount(() => {
         svg = d3.select('#graph');
-        // relations.subscribe((value) => {
-        //     updateGraph($textModels);
-        // });
         relations.subscribe(() => {
             $wordRelations
                 .filter((relation) => relation.type == 'root')
@@ -48,7 +45,6 @@
 
 
             let relationsFlat = valueFiltered.map((wordRelation) => wordRelation.relations).flat()
-            console.log(relationsFlat,valueFiltered);
             let relationsFlatNodes = relationsFlat.map((wordRelation) => [wordRelation.source, wordRelation.target, wordRelation.score]);
             let linkUpdate = svg.selectAll('.link').data(relationsFlatNodes);
             linkUpdate.exit().remove();
@@ -103,7 +99,6 @@
                                     }
                                 });
                                 max = max.reduce((acc, num) => acc+num, 0)/d.relations.length;
-                                console.log(max);
                                 return`${powScale(max,3 )*45}px`
                             }
                         })

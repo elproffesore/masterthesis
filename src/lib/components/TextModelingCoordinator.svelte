@@ -4,15 +4,14 @@
     import TextModel from '$lib/components/TextModel.svelte';
     import { onMount } from 'svelte';
     import rangy from 'rangy';
-    import TimelineComponent from './TimelineComponent.svelte';
+    import TimelineComponent from './views/TimelineComponent.svelte';
     import LayerOptions from './LayerOptions.svelte';
     import { v4 as uuidv4 } from 'uuid';
     import { markingType } from '$lib/stores';
     import { graphVisibility } from '$lib/stores';
-    import GraphComponent from './GraphComponent.svelte';
+    import GraphComponent from '$lib/components/views/GraphComponent.svelte';
     import TextRelationsComponent from '$lib/components/TextRelationsComponent.svelte';
-    import DrawingComponent from './DrawingComponent.svelte';
-    import FixedDrawingComponent from './FixedDrawingComponent.svelte';
+    import DrawingComponent from '$lib/components/views/DrawingComponent.svelte';
 
     onMount(() => {
         window.addEventListener('mouseup',(e) => {
@@ -63,6 +62,7 @@
                             comments: [],
                             relations: [],
                             relatedWords:[],
+                            positions:[],
                             opacity: 1,
                             createdAt: new Date().getTime(),
                             changedAt: new Date().getTime(),
@@ -105,7 +105,6 @@
 <TextRelationsComponent />
 <GraphComponent />
 <DrawingComponent />
-<FixedDrawingComponent />
 <div class="w-full h-full top-0 left-0 fixed z-0 transition-all duration-1000">
     {#each $textModels as _, i}
         <TextModel bind:textModel={$textModels[i]} />

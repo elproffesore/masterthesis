@@ -6,7 +6,6 @@
     import { getMostLeftNode, getMostRightNode, powScale } from '$lib/utils';
     import * as d3 from 'd3';
     import { onMount } from 'svelte';
-    import GraphComponent from './GraphComponent.svelte';
 
     let svg = null;
     const line = d3
