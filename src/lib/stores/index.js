@@ -23,5 +23,7 @@ export let timelineVisibility = writable(false);
 export let nodesVisibility = writable(true);
 export let graphVisibility = writable(false);
 export let drawingVisibility = writable(false);
+export let drawingFixedVisibility = writable(false);
+
 
 

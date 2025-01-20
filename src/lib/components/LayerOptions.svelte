@@ -1,5 +1,5 @@
 <script>
-    import { drawingVisibility, markingType } from '$lib/stores';
+    import { drawingFixedVisibility, drawingVisibility, markingType } from '$lib/stores';
     import { timelineVisibility, connectionsVisibility, nodesVisibility, graphVisibility, markingColor, textCollapse } from '$lib/stores';
     import { colors } from '$lib/utils';
     let optionsVisibility = $state(true);
@@ -34,6 +34,11 @@
             <label for="drawing">
                 <input name="drawing" type="checkbox" class="" bind:checked={$drawingVisibility} />
                 Drawing</label>
+        </div>
+        <div class="flex gap-2 ">
+            <label for="drawing-fixed">
+                <input name="drawing-fixed" type="checkbox" class="" bind:checked={$drawingFixedVisibility} />
+                Drawing Fixed</label>
         </div>
         {/if}
     </div>

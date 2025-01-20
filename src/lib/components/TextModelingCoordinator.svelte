@@ -11,6 +11,8 @@
     import { graphVisibility } from '$lib/stores';
     import GraphComponent from './GraphComponent.svelte';
     import TextRelationsComponent from '$lib/components/TextRelationsComponent.svelte';
+    import DrawingComponent from './DrawingComponent.svelte';
+    import FixedDrawingComponent from './FixedDrawingComponent.svelte';
 
     onMount(() => {
         window.addEventListener('mouseup',(e) => {
@@ -40,7 +42,7 @@
                             node.style.textDecorationColor = `rgba(${colors[0]},${colors[1]},${colors[2]},${Number(opacity) + 0.4})`;
                             break;
                     }
-                    text += node.innerText + ' ';
+                    text += node.innerText;
                     node.classList.add('selected');
                 });
 
@@ -54,7 +56,7 @@
                         let textModelNode = {
                             text: text,
                             id: uuidv4(),
-                            x: window.innerWidth / 2,
+                            x: window.innerWidth * 0.66,
                             y: window.innerHeight / 2,
                             nodes,
                             referenceNode: null,
@@ -102,6 +104,8 @@
 <LayerOptions />
 <TextRelationsComponent />
 <GraphComponent />
+<DrawingComponent />
+<FixedDrawingComponent />
 <div class="w-full h-full top-0 left-0 fixed z-0 transition-all duration-1000">
     {#each $textModels as _, i}
         <TextModel bind:textModel={$textModels[i]} />
