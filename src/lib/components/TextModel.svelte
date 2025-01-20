@@ -119,7 +119,7 @@
     let currentShownRelation = 0;
     function scrollToText(event) {
         event.preventDefault();
-        if (!moving && !$graphVisibility) {
+        if (!moving) {
             textModel.relations[currentShownRelation].source.nodes[0].scrollIntoView({
                 behavior: 'smooth',
                 block: 'center',
