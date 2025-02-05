@@ -106,7 +106,7 @@
 <GraphComponent />
 <DrawingComponent />
 <FixedDrawingComponent />
-<div class="w-full h-full top-0 left-0 fixed z-0 transition-all duration-1000">
+<div class="w-full h-full top-0 left-0 fixed transition-all duration-1000">
     {#each $textModels as _, i}
         <TextModel bind:textModel={$textModels[i]} />
     {/each}

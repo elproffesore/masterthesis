@@ -10,9 +10,6 @@
     let relatedWordsArray = [];
     onMount(() => {
         svg = d3.select('#graph');
-        // relations.subscribe((value) => {
-        //     updateGraph($textModels);
-        // });
         relations.subscribe(() => {
             $wordRelations
                 .filter((relation) => relation.type == 'root')
@@ -28,27 +25,22 @@
                 });
         });
         nodesVisibility.subscribe((value) => {
-           $wordRelations = [...$wordRelations];
+            $wordRelations = [...$wordRelations];
         });
         wordRelations.subscribe((value) => {
-            updateGraph(value)
+            updateGraph(value);
         });
-        function updateGraph(value){
-            let valueFiltered = value.filter((wordRelation) => wordRelation.relations.length > 1 || wordRelation.type == 'root')
+        function updateGraph(value) {
+            if (simulation != null) {
+                simulation.stop();
+                simulation = null;
+            }
+            let valueFiltered = value.filter((wordRelation) => wordRelation.relations.length > 1 || wordRelation.type == 'root');
             let groupUpdate = svg.selectAll('.wordRelations').data(valueFiltered);
             groupUpdate.exit().remove();
-            let groupEnter = groupUpdate
-                .enter()
-                .append('text')
-                .attr('class', 'wordRelations')
-                .attr('text-anchor', 'middle')
-                .attr('dominant-baseline', 'middle')
+            let groupEnter = groupUpdate.enter().append('text').attr('class', 'wordRelations').attr('text-anchor', 'middle').attr('dominant-baseline', 'middle');
 
-
-
-
-            let relationsFlat = valueFiltered.map((wordRelation) => wordRelation.relations).flat()
-            console.log(relationsFlat,valueFiltered);
+            let relationsFlat = valueFiltered.map((wordRelation) => wordRelation.relations).flat();
             let relationsFlatNodes = relationsFlat.map((wordRelation) => [wordRelation.source, wordRelation.target, wordRelation.score]);
             let linkUpdate = svg.selectAll('.link').data(relationsFlatNodes);
             linkUpdate.exit().remove();
@@ -58,16 +50,13 @@
                 .attr('class', 'link')
                 .attr('stroke-width', (d) => 1)
                 .attr('stroke', '#000000')
+                .attr('opacity', 0.6);
 
             if (simulation == null) {
-                simulation = d3
-                    .forceSimulation(valueFiltered)
-                    .force('collide', d3.forceCollide().radius(50))
-                    
-                    .alphaTarget(0.3)
+                simulation = d3.forceSimulation(valueFiltered).force('collide', d3.forceCollide().radius(50)).alphaTarget(0.3);
 
-            } 
                 simulation.nodes(valueFiltered);
+
                 simulation
                     .force(
                         'link',
@@ -78,38 +67,39 @@
                     )
                     .on('tick', () => {
                         // Update the position of the related words
-                        let relationsFlat = valueFiltered.map((wordRelation) => wordRelation.relations).flat()
+                        let relationsFlat = valueFiltered.map((wordRelation) => wordRelation.relations).flat();
                         let relationsFlatNodes = relationsFlat.map((wordRelation) => [wordRelation.source, wordRelation.target, wordRelation.score]);
                         linkUpdate = svg.selectAll('.link').data(relationsFlatNodes);
+                        linkUpdate.exit().remove();
                         linkEnter
                             .merge(linkUpdate)
                             .attr('x1', (d) => d[0].x)
                             .attr('y1', (d) => d[0].y)
                             .attr('x2', (d) => d[1].x)
-                            .attr('y2', (d) => d[1].y)
-                            .attr('opacity', (d) => powScale(d[2],10));
-                        
-                        groupEnter.merge(groupUpdate)
-                        .style('transform', (d) => `translate(${d.x}px,${d.y}px)`)
-                        .attr('font-size', (d) => {
-                            if(d.relations.length == 0){
-                                return '0px'
-                            }else{
-                                let max = d.relations.map(d => {
-                                    if(d.score != NaN){
-                                        return d.score
-                                    }else{
-                                        return 0
-                                    }
-                                });
-                                max = max.reduce((acc, num) => acc+num, 0)/d.relations.length;
-                                console.log(max);
-                                return`${powScale(max,3 )*45}px`
-                            }
-                        })
-                        .attr('fill', (d) => d.type == 'relation' ? '#ff1111' : 'none')
-                        .text((d) => d.id);
+                            .attr('y2', (d) => d[1].y);
+
+                        groupEnter
+                            .merge(groupUpdate)
+                            .style('transform', (d) => `translate(${d.x}px,${d.y}px)`)
+                            .attr('font-size', (d) => {
+                                if (d.relations.length == 0) {
+                                    return '0px';
+                                } else {
+                                    let max = d.relations.map((d) => {
+                                        if (d.score != NaN) {
+                                            return d.score;
+                                        } else {
+                                            return 0;
+                                        }
+                                    });
+                                    max = max.reduce((acc, num) => acc + num, 0) / d.relations.length;
+                                    return `${powScale(max, 3) * 45}px`;
+                                }
+                            })
+                            .attr('fill', (d) => (d.type == 'relation' ? '#ff1111' : 'none'))
+                            .text((d) => d.id);
                     });
+            }
         }
     });
 </script>

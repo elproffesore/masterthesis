@@ -20,7 +20,7 @@
             $relations = [...$relations];
         });
         relations.subscribe((value) => {
-            updateRelations($relations);
+            updateRelations(value);
         });
         timelineVisibility.subscribe((value) => {
             $relations = [...$relations];
