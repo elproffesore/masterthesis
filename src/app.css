@@ -38,7 +38,7 @@
     .commentSection,
     textarea,
     input {
-        @apply text-[1.2rem] font-light leading-relaxed py-4;
+        @apply text-[1rem] font-light leading-relaxed py-4;
     }
     .extracted {
         @apply bg-[#aaff00aa];

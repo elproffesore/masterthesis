@@ -40,10 +40,12 @@
             .merge(relationLinesUpdate)
             .attr('d', (d) => {
                 if (d.target.referenceNode == null || d.source.node == null) {
+                    console.log(d.target)
                     return '';
+
                 }
                 let textNode = d.source.node.getBoundingClientRect();
-                let targetNode = document.querySelector(`#textModel-${d.target.id}`).getBoundingClientRect();
+                let targetNode = document.querySelector(`#textModel-${d.target.id} .markedText`).getBoundingClientRect();
 
                 // Create four control points for the bezier curve
                 let controlPoint1 = {};
@@ -77,7 +79,7 @@
                 return line([controlPoint1, controlPoint2, controlPoint3, controlPoint4]);
             })
             .attr('stroke-width', (d) => (d.type == 'extracted' ? 2 : 0.5))
-            .attr('opacity',(d) =>  $timelineVisibility ? d.opacity: $linkOpacity);
+            .attr('opacity',(d) =>  d.opacity );
     }
 </script>
 

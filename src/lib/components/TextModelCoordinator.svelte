@@ -11,53 +11,52 @@
     import { v4 as uuidv4 } from 'uuid';
     import rangy from 'rangy';
 
-
     onMount(() => {
         window.addEventListener('mouseup', (e) => {
-            e.preventDefault();
-            try {
-                let range = rangy.getSelection()._ranges[0];
-                if (Math.abs(range.nativeRange.startOffset-range.nativeRange.endOffset) < 2) {
-                    return;
-                }
-                // Create a span element and wrap the selected text with it
-                let spanWrapper = document.createElement('span');
-                spanWrapper.classList.add('extracted');
-                spanWrapper.id = uuidv4();
-                console.log(range)
-                range.surroundContents(spanWrapper);
-                let blacklistRange = {
-                    start: range.startOffset,
-                    end: range.endOffset,
-                    container: range.startContainer,
-                };
-                window.getSelection().removeAllRanges();
-                // Set text to the innerText of the span
-                let text = spanWrapper.innerText;
-
-                // Find similar texts in source text
-                let rootElement = document.querySelector('#textWrapper');
-                let textNodes = document.createTreeWalker(rootElement, NodeFilter.SHOW_TEXT, null, false);
-                let node;
-                let ranges = [];
-
-                while ((node = textNodes.nextNode())) {
-                    if (node.nodeValue.toLocaleLowerCase().includes(text.toLocaleLowerCase()) && node.parentElement.id != spanWrapper.id) {
-                        let startIndex = node.nodeValue.toLocaleLowerCase().indexOf(text.toLocaleLowerCase());
-                        let endIndex = startIndex + text.length;
-                        let range = rangy.createRange();
-                        range.setStart(node, startIndex);
-                        range.setEnd(node, endIndex);
-                        ranges.push(range);
+            if (e.target.nodeName != 'INPUT') {
+                e.preventDefault();
+                try {
+                    let range = rangy.getSelection()._ranges[0];
+                    if (range == undefined || Math.abs(range.nativeRange.startOffset - range.nativeRange.endOffset) < 2) {
+                        return;
                     }
-                }
-                let related = [];
-                ranges.forEach((range) => {
-                    let span = document.createElement('span');
-                    span.classList.add('related');
-                    range.surroundContents(span);
-                    related.push(span);
-                });
+                    // Create a span element and wrap the selected text with it
+                    let spanWrapper = document.createElement('span');
+                    spanWrapper.classList.add('extracted');
+                    spanWrapper.id = uuidv4();
+                    range.surroundContents(spanWrapper);
+                    let blacklistRange = {
+                        start: range.startOffset,
+                        end: range.endOffset,
+                        container: range.startContainer,
+                    };
+                    window.getSelection().removeAllRanges();
+                    // Set text to the innerText of the span
+                    let text = spanWrapper.innerText;
+
+                    // Find similar texts in source text
+                    let rootElement = document.querySelector('#textWrapper');
+                    let textNodes = document.createTreeWalker(rootElement, NodeFilter.SHOW_TEXT, null, false);
+                    let node;
+                    let ranges = [];
+
+                    while ((node = textNodes.nextNode())) {
+                        if (node.nodeValue.toLocaleLowerCase().includes(text.toLocaleLowerCase()) && node.parentElement.id != spanWrapper.id) {
+                            let startIndex = node.nodeValue.toLocaleLowerCase().indexOf(text.toLocaleLowerCase());
+                            let endIndex = startIndex + text.length;
+                            let range = rangy.createRange();
+                            range.setStart(node, startIndex);
+                            range.setEnd(node, endIndex);
+                            ranges.push(range);
+                        }
+                    }
+                    let related = [];
+                    ranges.forEach((range) => {
+                        let span = document.createElement('span');
+                        span.classList.add('related');
+                        range.surroundContents(span);
+                        related.push(span);
+                    });
                     // Create or link model for the selected text
                     let model = null;
                     let similarModel = $textModels.find((model) => model.text.toLocaleLowerCase() == text.toLocaleLowerCase());
@@ -143,14 +142,12 @@
                         model.relations.push($relations[relationsLength - 1]);
                         $textModels = $textModels;
                     });
-            } catch (e) {
-                console.log(e);
+                } catch (e) {
+                    console.log(e);
+                }
             }
         });
     });
-    function createManualTextModel(){
-        //Todo
-    }
 </script>
 
 <LayerOptions />
@@ -158,9 +155,8 @@
 <Graph />
 <Canvas />
 <Timeline />
-<div class="w-full h-full top-0 left-0 absolute transition-all duration-1000" onclick="{createManualTextModel}">
+<div class="w-full h-full top-0 left-0 absolute transition-all duration-1000">
     {#each $textModels as _, i}
         <TextModel bind:textModel={$textModels[i]} />
     {/each}
 </div>
-

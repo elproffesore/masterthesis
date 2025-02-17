@@ -13,17 +13,29 @@
     let { textModel = $bindable() } = $props();
     let object;
     let moving = $state(false);
+    let movable = $state(true);
     let commentFunctionActive = $state(false);
     let commentFunctionDisplay = $state(false);
 
     onMount(() => {
         textModel.referenceNode = object;
         textModel.text = textModel.text.replace(/[^a-z\sA-Z]/g, '');
+        textModel.referenceNode = object
         if(textModel.text.trim().split(' ').length < 5){
             retrieveRelatedWordsFromText();
         }
         $textModels = [...$textModels];
         $relations = [...$relations];
+        window.addEventListener('keydown', (e) => { 
+            if (e.metaKey) {
+                movable = false
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            if (!e.metaKey) {
+                movable = true
+            }
+        });
     });
     async function retrieveRelatedWordsFromText(){
         // let doc = nlp.readDoc(textModel.text);
@@ -87,22 +99,24 @@
             //let answer = await semanticalyRelativeWordsInText(textModel.text.split(' ')[0], $words)
     }
     function onMouseDown(event) {
-        if (!commentFunctionActive) {
+        if (movable) {
             event.preventDefault();
             moving = true;
         }
     }
 
     function onMouseUp(event) {
-        event.preventDefault();
-        textModel.changedAt = new Date().getTime();
-        moving = false;
+        if(moving){
+            event.preventDefault();
+            textModel.changedAt = new Date().getTime();
+            moving = false;
+        }
+
     }
 
     function handleDrag(event) {
-        event.preventDefault();
         if (moving) {
-
+            event.preventDefault();
             textModel.position[textModel.mode].x += event.movementX;
             textModel.position[textModel.mode].y += event.movementY;
             $relations = $relations;
@@ -151,12 +165,10 @@
 </script>
 
 <svelte:window onmouseup={onMouseUp} onmousemove={handleDrag} />
-{#key textModel}
 <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events,a11y_mouse_events_have_key_events -->
-<div bind:this={object} id={'textModel-' + textModel.id} class:hidden={!$nodesVisibility} class="textModel z-[101] cursor-grab max-w-[300px] {textModel.mode == "free"? 'absolute': 'fixed'}" style:left={textModel.position[textModel.mode].x + 'px'} style:top={textModel.position[textModel.mode].y + 'px'} style:opacity={textModel.opacity} draggable="true" onmousedown={onMouseDown} onclick={scrollToText}>
+<div bind:this={object} id={'textModel-' + textModel.id} class:hidden={!$nodesVisibility} class="textModel z-[101] max-w-[300px] {textModel.mode == "free"? 'absolute': 'fixed'}" style:left={textModel.position[textModel.mode].x + 'px'} style:top={textModel.position[textModel.mode].y + 'px'} style:opacity={textModel.opacity} style:cursor={movable?'grab':'text'} onmousedown={onMouseDown} onclick={scrollToText}>
     <span class="markedText {$textCollapse ? 'line-clamp-1' : ''}">{textModel.text}</span>
     <button class="absolute -top-px -right-2 w-4 h-4 z-[102] text-[10px]" onclick={deleteTextNode}>[x]</button>
-    <button class="absolute -top-px -left-2 w-4 h-4 z-[102] text-[10px]" onclick={pinTextModel}>pin</button>
+    <button class="absolute -top-px -left-2 w-4 h-4 z-[102] text-[10px]" onclick={pinTextModel}>{textModel.mode == "free"? 'pin': 'unpin'}</button>
 </div>
-{/key}
 
