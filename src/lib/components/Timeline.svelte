@@ -74,8 +74,9 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-    class="fixed bottom-4 w-min left-[45%] flex items-end h-16"
+    class="fixed bottom-px w-full left-[5%] flex items-end h-8 bg-[#fffff8] z-[1002]"
     style:visibility={$timelineVisibility ? 'visible' : 'hidden'}
+    style="box-shadow: 0 0px 10px 10px #fffff8;"
     onmousemove={updateTimeLinePointer}>
     <div bind:this={timelineElement} class="w-max flex items-end gap-2 z-1">
         {#each timeStampsSorted as timestamp, timestampIndex}

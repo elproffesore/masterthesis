@@ -16,6 +16,7 @@ export let markingColor = writable(colors[0]);
 export let markingType = writable("highlight");
 export let textCollapse = writable(false);
 export let docHeight = writable(0);
+export let linkOpacity = writable(1);
 
 // Visibilities of the modals
 export let connectionsVisibility = writable(true);

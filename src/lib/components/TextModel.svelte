@@ -37,53 +37,53 @@
         //             return foundWords;
         //         }),
         //     );
-            let corpus = Array.from(new Set(nlp.readDoc($text)
-            .tokens()
-                .filter((t) => !t.out(its.stopWordFlag) && t.out(its.type) == 'word' && t.out(its.pos) == 'NOUN')
-                .out()));
+            // let corpus = Array.from(new Set(nlp.readDoc($text)
+            // .tokens()
+            //     .filter((t) => !t.out(its.stopWordFlag) && t.out(its.type) == 'word' && t.out(its.pos) == 'NOUN')
+            //     .out()));
 
-            let allRelatedWords = await semanticalyRelativeWordsInText(textModel.text, corpus)
-            allRelatedWords = removeDuplicateObjects(allRelatedWords.flat());
-            allRelatedWords
-                .filter((word) => !textModel.text.trim().split(' ').some((part) => levenshtein(part, word.word) < 5))
-                .filter((word) => word.score != 1 && word.score > 0.35)
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 15)
-                .map((word) => {
-                let node = document.querySelector('.' + word.word);
-                if (node && word.score > 0.55) {
-                    node.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
-                    let boundingClientRectText = getMostRightNode([node]).getBoundingClientRect();
-                    let textNode = {
-                        text: word.word,
-                        x: boundingClientRectText.x,
-                        y: boundingClientRectText.y,
-                        nodes: [node],
-                        opacity: 1,
-                        createdAt: new Date().getTime(),
-                        changedAt: new Date().getTime(),
-                    };
-                    // Connect the text node with the logical node
-                    let relationsLength = $relations.push({
-                        source: textNode,
-                        target: textModel,
-                        createdAt: new Date().getTime(),
-                        changedAt: new Date().getTime(),
-                        opacity: 1,
-                    });
-                    textModel.relations.push($relations[relationsLength - 1]);
-                }
-                let wordRelation = $wordRelations.findIndex((wordRelation) => wordRelation.id == word.word);
-                if (wordRelation != -1) {
-                    $wordRelations[wordRelation].relations.push({ source: textModel.text, target: word.word, score: word.score });
-                } else {
-                    $wordRelations.push({ type: 'relation', id: word.word, relations: [{ source: textModel.text, target: word.word, score: word.score }] });
-                }
-            });
-            let textModelDimensions = textModel.referenceNode.getBoundingClientRect();
-            $wordRelations.push({ type: 'root', id: textModel.text, node: textModel, relations: [], x: textModelDimensions.x + textModelDimensions.width / 2, fx: textModelDimensions.x + textModelDimensions.width / 2, y: textModelDimensions.y + textModelDimensions.height / 2, fy: textModelDimensions.y + textModelDimensions.height / 2 });
-            $wordRelations = [...$wordRelations];
-            $relations = [...$relations];
+            // let allRelatedWords = await semanticalyRelativeWordsInText(textModel.text, corpus)
+            // allRelatedWords = removeDuplicateObjects(allRelatedWords.flat());
+            // allRelatedWords
+            //     .filter((word) => !textModel.text.trim().split(' ').some((part) => levenshtein(part, word.word) < 5))
+            //     .filter((word) => word.score != 1 && word.score > 0.35)
+            //     .sort((a, b) => b.score - a.score)
+            //     .slice(0, 15)
+            //     .map((word) => {
+            //     let node = document.querySelector('.' + word.word);
+            //     if (node && word.score > 0.55) {
+            //         node.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+            //         let boundingClientRectText = getMostRightNode([node]).getBoundingClientRect();
+            //         let textNode = {
+            //             text: word.word,
+            //             x: boundingClientRectText.x,
+            //             y: boundingClientRectText.y,
+            //             nodes: [node],
+            //             opacity: 1,
+            //             createdAt: new Date().getTime(),
+            //             changedAt: new Date().getTime(),
+            //         };
+            //         // Connect the text node with the logical node
+            //         let relationsLength = $relations.push({
+            //             source: textNode,
+            //             target: textModel,
+            //             createdAt: new Date().getTime(),
+            //             changedAt: new Date().getTime(),
+            //             opacity: 1,
+            //         });
+            //         textModel.relations.push($relations[relationsLength - 1]);
+            //     }
+            //     let wordRelation = $wordRelations.findIndex((wordRelation) => wordRelation.id == word.word);
+            //     if (wordRelation != -1) {
+            //         $wordRelations[wordRelation].relations.push({ source: textModel.text, target: word.word, score: word.score });
+            //     } else {
+            //         $wordRelations.push({ type: 'relation', id: word.word, relations: [{ source: textModel.text, target: word.word, score: word.score }] });
+            //     }
+            // });
+            // let textModelDimensions = textModel.referenceNode.getBoundingClientRect();
+            // $wordRelations.push({ type: 'root', id: textModel.text, node: textModel, relations: [], x: textModelDimensions.x + textModelDimensions.width / 2, fx: textModelDimensions.x + textModelDimensions.width / 2, y: textModelDimensions.y + textModelDimensions.height / 2, fy: textModelDimensions.y + textModelDimensions.height / 2 });
+            // $wordRelations = [...$wordRelations];
+            // $relations = [...$relations];
             //let answer = await semanticalyRelativeWordsInText(textModel.text.split(' ')[0], $words)
     }
     function onMouseDown(event) {
@@ -102,23 +102,11 @@
     function handleDrag(event) {
         event.preventDefault();
         if (moving) {
-            textModel.x += event.movementX;
-            textModel.y += event.movementY;
+
+            textModel.position[textModel.mode].x += event.movementX;
+            textModel.position[textModel.mode].y += event.movementY;
             $relations = $relations;
         }
-    }
-    function comment(events) {
-        events.preventDefault();
-        commentFunctionActive = true;
-    }
-    function displayCommentButton(event) {
-        event.preventDefault();
-        commentFunctionDisplay = true;
-    }
-    function hideCommentButton() {
-        event.preventDefault();
-        commentFunctionDisplay = false;
-        commentFunctionActive = false;
     }
     let currentShownRelation = 0;
     function scrollToText(event) {
@@ -145,22 +133,30 @@
     });
     function deleteTextNode(e){
         e.preventDefault();
-        relations.set($relations.filter((relation) => relation.target.id != textModel.id))
-        let array = $wordRelations.filter((wordRelation) => wordRelation.id != textModel.text).filter((wordRelation) => wordRelation.relations.filter((relation) => relation.target == textModel.text).length == 0);
-        wordRelations.set(array);
-        let indexTextModel = $textModels.findIndex((model) => model.id == textModel.id);
-        if(indexTextModel != -1){
-            $textModels.splice(indexTextModel, 1);
-            $textModels = [...$textModels];
+        $relations = [...$relations.filter((relation) => relation.target.id != textModel.id)]
+        $textModels = [...$textModels.filter((model) => model.id != textModel.id)]
+    }
+    function pinTextModel(e){
+        e.preventDefault();
+        if(textModel.mode == 'free'){
+            let boundingRect = textModel.referenceNode.getBoundingClientRect();
+            textModel.position.fixed.y = boundingRect.top;
+            textModel.position.fixed.x = textModel.position.free.x;
         }
-
+        textModel.mode = textModel.mode == 'free' ? 'fixed' : 'free';
+        $textModels = [...$textModels];
+        $relations = [...$relations];
+        scrollTo(0,window.scrollY+1)
     }
 </script>
 
 <svelte:window onmouseup={onMouseUp} onmousemove={handleDrag} />
+{#key textModel}
 <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events,a11y_mouse_events_have_key_events -->
-<div bind:this={object} id={'textModel-' + textModel.id} class:hidden={!$nodesVisibility} class="textModel z-[101] absolute cursor-grab max-w-[300px]" style:left={textModel.x + 'px'} style:top={textModel.y + 'px'} style:opacity={textModel.opacity} draggable="true" onmousedown={onMouseDown} onclick={scrollToText}>
+<div bind:this={object} id={'textModel-' + textModel.id} class:hidden={!$nodesVisibility} class="textModel z-[101] cursor-grab max-w-[300px] {textModel.mode == "free"? 'absolute': 'fixed'}" style:left={textModel.position[textModel.mode].x + 'px'} style:top={textModel.position[textModel.mode].y + 'px'} style:opacity={textModel.opacity} draggable="true" onmousedown={onMouseDown} onclick={scrollToText}>
     <span class="markedText {$textCollapse ? 'line-clamp-1' : ''}">{textModel.text}</span>
-    <button class="absolute -top-2 -right-2 w-4 h-4 z-[102]" onclick={deleteTextNode}>x</button>
+    <button class="absolute -top-px -right-2 w-4 h-4 z-[102] text-[10px]" onclick={deleteTextNode}>[x]</button>
+    <button class="absolute -top-px -left-2 w-4 h-4 z-[102] text-[10px]" onclick={pinTextModel}>pin</button>
 </div>
+{/key}
 

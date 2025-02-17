@@ -1,5 +1,5 @@
 <script>
-    import { drawingFixedVisibility, drawingVisibility, markingType } from '$lib/stores';
+    import { drawingFixedVisibility, drawingVisibility, linkOpacity, markingType } from '$lib/stores';
     import { timelineVisibility, connectionsVisibility, nodesVisibility, graphVisibility, markingColor, textCollapse } from '$lib/stores';
     import { colors } from '$lib/utils';
     let optionsVisibility = $state(true);
@@ -8,7 +8,7 @@
     let stylesVisibility = $state(false);
     let visualVisibility = $state(true);
 </script>
-<div class="flex gap-2 fixed items-start top-4 right-4 z-[110]">
+<div class="flex gap-2 fixed items-start top-4 right-4 z-[1004]">
     <!-- <div class="flex gap-2">
         <label for="options" class="font-bold">
             <input name="options" type="checkbox" bind:checked={optionsVisibility} />
@@ -34,11 +34,6 @@
             <label for="drawing">
                 <input name="drawing" type="checkbox" class="" bind:checked={$drawingVisibility} />
                 Drawing</label>
-        </div>
-        <div class="flex gap-2 ">
-            <label for="drawing-fixed">
-                <input name="drawing-fixed" type="checkbox" class="" bind:checked={$drawingFixedVisibility} />
-                Drawing Fixed</label>
         </div>
         {/if}
     </div>
@@ -114,6 +109,10 @@
                 <label for="textCollapse">
                     <input name="textCollapse" type="checkbox" class="" bind:checked={$textCollapse} />
                     Text Collapse</label>
+            </div>
+            <div class="flex flex-col gap-2 max-w-[100px] ">
+                <label for="linkOpacity" class="">Opacity: {$linkOpacity}</label>
+                    <input name="linkOpacity" type="range" min="0.0" max="1.0" step="0.05" class="" bind:value={$linkOpacity} />
             </div>
             {/if}
     </div>
