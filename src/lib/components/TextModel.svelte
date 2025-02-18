@@ -6,6 +6,9 @@
     import levenshtein from 'js-levenshtein';
     import winkNLP from 'wink-nlp';
     import model from 'wink-eng-lite-web-model';
+    import rangy from 'rangy';
+    import * as d3 from 'd3';
+
     const nlp = winkNLP(model);
     const its = nlp.its;
     const as = nlp.as;
@@ -16,6 +19,8 @@
     let movable = $state(true);
     let commentFunctionActive = $state(false);
     let commentFunctionDisplay = $state(false);
+    let displaySameWordsInText = $state(false)
+    let ranges = $state([]);
 
     onMount(() => {
         textModel.referenceNode = object;
@@ -36,7 +41,70 @@
                 movable = true
             }
         });
+        retrieveSameWordsInText();
     });
+    function retrieveSameWordsInText(){
+                    // Find similar texts in source text
+                    let rootElement = document.querySelector('#textWrapper');
+                    let textNodes = document.createTreeWalker(rootElement, NodeFilter.SHOW_TEXT, null, false);
+                    let node;
+                    ranges = [];
+
+                    while ((node = textNodes.nextNode())) {
+                        if (node.nodeValue.toLocaleLowerCase().includes(textModel.text.trim().toLocaleLowerCase()) && node.parentElement.id != textModel.nodes[0].id) {
+                            let startIndex = node.nodeValue.toLocaleLowerCase().indexOf(textModel.text.trim().toLocaleLowerCase());
+                            let endIndex = startIndex + textModel.text.length;
+                            let range = rangy.createRange();
+                            range.setStart(node, startIndex);
+                            range.setEnd(node, endIndex);
+                            ranges.push(range);
+                        }
+                    }
+                    let related = [];
+                    ranges.forEach((range) => {
+                        let span = document.createElement('span');
+                        span.classList.add('related');
+                        span.classList.add('modelRef-'+textModel.id);
+                        range.surroundContents(span);
+                        related.push(span);
+                    });
+                    // Create or link model for the related texts
+                    related.map((relatedNode) => {
+                        let boundingClientRectText = relatedNode.getBoundingClientRect();
+                        let textNode = {
+                            text: relatedNode.innerText,
+                            type: 'related',
+                            x: boundingClientRectText.x,
+                            y: boundingClientRectText.y,
+                            node: relatedNode,
+                            opacity: 1,
+                            createdAt: new Date().getTime(),
+                            changedAt: new Date().getTime(),
+                        };
+                        // Connect the text node with the logical node
+                        let relationsLength = $relations.push({
+                            source: textNode,
+                            target: textModel,
+                            type: 'related',
+                            createdAt: new Date().getTime(),
+                            changedAt: new Date().getTime(),
+                            opacity: 1,
+                        });
+                        $relations = $relations;
+                        textModel.relations.push($relations[relationsLength - 1]);
+                        $textModels = $textModels;
+                    });
+                    d3.selectAll(`.relation-${textModel.id}.relation-related`).attr('display','none')
+                }
+    function toggleSameWordsInText(){
+        displaySameWordsInText = !displaySameWordsInText;
+        if(displaySameWordsInText){
+            d3.selectAll(`.relation-${textModel.id}.relation-related`).attr('display','block')
+        }else{
+            d3.selectAll(`.relation-${textModel.id}.relation-related`).attr('display','none')
+        }
+    }
+     
     async function retrieveRelatedWordsFromText(){
         // let doc = nlp.readDoc(textModel.text);
         //     doc = doc
@@ -166,8 +234,9 @@
 
 <svelte:window onmouseup={onMouseUp} onmousemove={handleDrag} />
 <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events,a11y_mouse_events_have_key_events -->
-<div bind:this={object} id={'textModel-' + textModel.id} class:hidden={!$nodesVisibility} class="textModel z-[101] max-w-[300px] {textModel.mode == "free"? 'absolute': 'fixed'}" style:left={textModel.position[textModel.mode].x + 'px'} style:top={textModel.position[textModel.mode].y + 'px'} style:opacity={textModel.opacity} style:cursor={movable?'grab':'text'} onmousedown={onMouseDown} onclick={scrollToText}>
-    <span class="markedText {$textCollapse ? 'line-clamp-1' : ''}">{textModel.text}</span>
+<div bind:this={object} id={'textModel-' + textModel.id} class:hidden={!$nodesVisibility} class="textModel  z-[101] max-w-[300px] {textModel.mode == "free"? 'absolute': 'fixed'}" style:left={textModel.position[textModel.mode].x + 'px'} style:top={textModel.position[textModel.mode].y + 'px'} style:opacity={textModel.opacity} style:cursor={movable?'grab':'text'} onmousedown={onMouseDown} onclick={scrollToText}>
+    <span class="markedText bg-primary {$textCollapse ? 'line-clamp-1' : ''}">{textModel.text}</span>
+    <button class="absolute -bottom-px -right-2 h-4 z-[102] text-[8px]" onclick={toggleSameWordsInText}>{ranges.length} Links</button>
     <button class="absolute -top-px -right-2 w-4 h-4 z-[102] text-[10px]" onclick={deleteTextNode}>[x]</button>
     <button class="absolute -top-px -left-2 w-4 h-4 z-[102] text-[10px]" onclick={pinTextModel}>{textModel.mode == "free"? 'pin': 'unpin'}</button>
 </div>

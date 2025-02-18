@@ -7,6 +7,7 @@ export default {
     extend: {
       'colors': {
         'invisible': 'transparent',
+        'primary': '#fffff4'
       }
     }
   },

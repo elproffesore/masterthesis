@@ -33,30 +33,6 @@
                     window.getSelection().removeAllRanges();
                     // Set text to the innerText of the span
                     let text = spanWrapper.innerText;
-
-                    // Find similar texts in source text
-                    let rootElement = document.querySelector('#textWrapper');
-                    let textNodes = document.createTreeWalker(rootElement, NodeFilter.SHOW_TEXT, null, false);
-                    let node;
-                    let ranges = [];
-
-                    while ((node = textNodes.nextNode())) {
-                        if (node.nodeValue.toLocaleLowerCase().includes(text.toLocaleLowerCase()) && node.parentElement.id != spanWrapper.id) {
-                            let startIndex = node.nodeValue.toLocaleLowerCase().indexOf(text.toLocaleLowerCase());
-                            let endIndex = startIndex + text.length;
-                            let range = rangy.createRange();
-                            range.setStart(node, startIndex);
-                            range.setEnd(node, endIndex);
-                            ranges.push(range);
-                        }
-                    }
-                    let related = [];
-                    ranges.forEach((range) => {
-                        let span = document.createElement('span');
-                        span.classList.add('related');
-                        range.surroundContents(span);
-                        related.push(span);
-                    });
                     // Create or link model for the selected text
                     let model = null;
                     let similarModel = $textModels.find((model) => model.text.toLocaleLowerCase() == text.toLocaleLowerCase());
@@ -115,33 +91,6 @@
                     $relations = $relations;
                     model.relations.push($relations[relationsLength - 1]);
                     $textModels = $textModels;
-
-                    // Create or link model for the related texts
-                    related.map((relatedNode) => {
-                        let boundingClientRectText = relatedNode.getBoundingClientRect();
-                        let textNode = {
-                            text: relatedNode.innerText,
-                            type: 'related',
-                            x: boundingClientRectText.x,
-                            y: boundingClientRectText.y,
-                            node: relatedNode,
-                            opacity: 1,
-                            createdAt: new Date().getTime(),
-                            changedAt: new Date().getTime(),
-                        };
-                        // Connect the text node with the logical node
-                        let relationsLength = $relations.push({
-                            source: textNode,
-                            target: model,
-                            type: 'related',
-                            createdAt: new Date().getTime(),
-                            changedAt: new Date().getTime(),
-                            opacity: 1,
-                        });
-                        $relations = $relations;
-                        model.relations.push($relations[relationsLength - 1]);
-                        $textModels = $textModels;
-                    });
                 } catch (e) {
                     console.log(e);
                 }
