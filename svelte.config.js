@@ -6,7 +6,7 @@ const config = {
 	preprocess: vitePreprocess(),
 	kit: {
 		paths: { 
-			base: 'https://elproffesore.github.io/masterthesis',
+			base: '/masterthesis',
 			relative: false 
 		},
 		adapter: adapter({
