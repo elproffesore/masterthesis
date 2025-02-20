@@ -13,7 +13,7 @@ npx sv create
 # create a new project in my-app
 npx sv create my-app
 ```
-
+trigger
 ## Developing
 
 Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
