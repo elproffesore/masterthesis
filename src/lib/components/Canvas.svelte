@@ -31,8 +31,9 @@
         paths = [...paths, pathData];
     }
 </script>
-<svg id="drawing-canvas" class:pointer-events-none={!$drawingVisibility} class="w-[100vw] z-[1003] absolute top-0 left-0 transition-all duration-1000" style:height={$docHeight+'px'}  onpointerdown="{handlePointerDown}" onpointermove="{handlePointerMove}">
+<svg id="drawing-canvas" class:pointer-events-none={!$drawingVisibility} class="w-[100vw] z-[1003] absolute top-0 left-0 transition-all duration-1000" style:height={$docHeight +'px'} height={$docHeight} onpointerdown="{handlePointerDown}" onpointermove="{handlePointerMove}">
     {#each paths as pathData}
         <path d={pathData} stroke='%23111111' />
     {/each}
+    <g id="sessionStores"></g>
 </svg>

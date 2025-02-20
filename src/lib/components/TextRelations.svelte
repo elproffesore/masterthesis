@@ -42,12 +42,12 @@
             .attr('d', (d) => {
                 if (d.target.referenceNode == null || d.source.node == null) {
                     console.log(d.target)
+                    d.target.referenceNode = document.querySelector('#textModel-' + d.target.id)
                     return '';
 
                 }
                 let textNode = d.source.node.getBoundingClientRect();
                 let targetNode = d.target.referenceNode.getBoundingClientRect();
-
                 // Create four control points for the bezier curve
                 let controlPoint1 = {};
                 let controlPoint2 = {};

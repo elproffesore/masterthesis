@@ -46,7 +46,7 @@
                             position: {
                                 free: {
                                     x: spanWrapper.getBoundingClientRect().x > window.innerWidth / 2 ? window.innerWidth * 0.8 : window.innerWidth * 0.1,
-                                    y: e.clientY,
+                                    y: window.scrollY + window.innerHeight / 2,
                                 },
                                 fixed: {
                                     x: 0,
@@ -68,6 +68,7 @@
                     }
                     let boundingClientRectText = spanWrapper.getBoundingClientRect();
                     let textNode = {
+                        id: spanWrapper.id,
                         text: text,
                         type: 'extracted',
                         x: boundingClientRectText.x,
