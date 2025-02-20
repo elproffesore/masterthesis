@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body,
+    html {
+        overscroll-behavior: none;
+        background-color: #fffff4;
+    }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    p,
+    span,
+    textarea,
+    input {
+        font-family: century, 'Times New Roman', serif;
+        color: #111111;
+        padding: 0;
+        margin: 0;
+    }
+    h1 {
+        @apply text-[2.2rem] font-black leading-tight text-left;
+    }
+    h2 {
+        @apply text-[2.1rem] font-bold leading-tight text-left;
+    }
+    h3 {
+        @apply text-[2rem] font-bold leading-tight text-left;
+    }
+    p {
+        @apply text-[1.2rem] font-light leading-relaxed py-4;
+    }
+    .textModel,
+    .commentSection,
+    textarea,
+    input {
+        @apply text-[1rem] font-light leading-relaxed py-4;
+    }
+    .extracted {
+        @apply bg-[#aaff00aa];
+    }
+    .related {
+        @apply underline decoration-2
+    }
+}
