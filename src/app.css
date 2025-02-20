@@ -7,6 +7,8 @@
     html {
         overscroll-behavior: none;
         background-color: #fffff4;
+        user-select: text;
+        -webkit-user-select: text;
     }
     h1,
     h2,
