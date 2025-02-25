@@ -21,7 +21,7 @@
         
 
         let stroke = getStroke(points, {
-            size: 5,
+            size: 2,
             thinning: 0.2,
             smoothing: 0.8,
             streamline: 0.8,
@@ -30,8 +30,13 @@
         let pathData = getSvgPathFromStroke(stroke);
         paths = [...paths, pathData];
     }
+    function handlePointerUp(e) {
+        console.log('up');
+        e.target.releasePointerCapture(e.pointerId);
+        points = [];
+    }
 </script>
-<svg id="drawing-canvas" class:pointer-events-none={!$drawingVisibility} class="w-[100vw] z-[1003] absolute top-0 left-0 transition-all duration-1000" style:height={$docHeight +'px'} height={$docHeight} onpointerdown="{handlePointerDown}" onpointermove="{handlePointerMove}">
+<svg id="drawing-canvas" class:pointer-events-none={!$drawingVisibility} class="w-[100vw] z-[1003] absolute top-0 left-0 transition-all duration-1000" style:height={$docHeight +'px'} height={$docHeight} onpointerdown="{handlePointerDown}" onpointermove="{handlePointerMove}" onpointerup="{handlePointerUp}">
     {#each paths as pathData}
         <path d={pathData} stroke='%23111111' />
     {/each}

@@ -18,6 +18,7 @@
     let currentSession = null
     onMount(async () => {
         //Fetch markdown file and convert it to html
+        //let file = await fetch('./files/masterthesis.md');
         let file = await fetch('./files/latour-a-cautious-promotheus.md');
         //let file = await fetch('./files/tversky-visualizing-thought.md');
         path = new URL(await file.url).pathname.replace('/files/', '');
