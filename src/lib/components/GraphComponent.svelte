@@ -56,7 +56,7 @@
                 .enter()
                 .append('line')
                 .attr('class', 'link')
-                .attr('stroke-width', (d) => 1)
+                .attr('opacity', 0.6)
                 .attr('stroke', '#000000')
 
             if (simulation == null) {
@@ -87,7 +87,7 @@
                             .attr('y1', (d) => d[0].y)
                             .attr('x2', (d) => d[1].x)
                             .attr('y2', (d) => d[1].y)
-                            .attr('opacity', (d) => powScale(d[2],10));
+                            .attr('stroke-width', (d) => powScale(d[2],4));
                         
                         groupEnter.merge(groupUpdate)
                         .style('transform', (d) => `translate(${d.x}px,${d.y}px)`)
@@ -104,7 +104,7 @@
                                 });
                                 max = max.reduce((acc, num) => acc+num, 0)/d.relations.length;
                                 console.log(max);
-                                return`${powScale(max,3 )*45}px`
+                                return`${12}px`
                             }
                         })
                         .attr('fill', (d) => d.type == 'relation' ? '#ff1111' : 'none')
