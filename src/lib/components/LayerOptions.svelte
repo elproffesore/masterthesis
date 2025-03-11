@@ -18,17 +18,17 @@
         <div class="flex gap-2 ">
             <label for="timeline">
                 <input name="timeline" type="checkbox" class="" bind:checked={$timelineVisibility} />
-                Timeline</label>
+                Timeline (t)</label>
         </div>
         <div class="flex gap-2 ">
             <label for="graph">
                 <input name="graph" type="checkbox" class="" bind:checked={$graphVisibility} />
-                Graph</label>
+                Graph (g)</label>
         </div>
         <div class="flex gap-2 ">
             <label for="drawing">
                 <input name="drawing" type="checkbox" class="" bind:checked={$drawingVisibility} />
-                Drawing</label>
+                Drawing (d)</label>
         </div>
         {/if}
     </div>
@@ -41,11 +41,6 @@
                 <label for="nodes">
                     <input name="nodes" type="checkbox" class="" bind:checked={$nodesVisibility} />
                     Nodes</label>
-            </div>
-            <div class="flex gap-2 ">
-                <label for="textCollapse">
-                    <input name="textCollapse" type="checkbox" class="" bind:checked={$textCollapse} />
-                    Text Collapse</label>
             </div>
             {/if}
     </div>

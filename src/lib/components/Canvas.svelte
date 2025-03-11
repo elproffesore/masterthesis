@@ -2,11 +2,24 @@
     import { getStroke } from 'perfect-freehand';
     import { getSvgPathFromStroke } from '$lib/utils';
     import { docHeight, drawingVisibility } from '$lib/stores';
+    import { onMount } from 'svelte';
 
     let points = $state([]);
     let paths = $state([]);
     let innerHeight = $state(0);
-
+    onMount(() => {
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'd') {
+                $drawingVisibility = true
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'd') {
+                $drawingVisibility = false
+            }
+        });
+    });
+     
     function handlePointerDown(e) {
         console.log('down');
         e.target.setPointerCapture(e.pointerId);

@@ -28,10 +28,10 @@
         // Set the innerHTML of the source wrapper to the text and publish its height
         doc.innerHTML = html;
         $docHeight = doc.getBoundingClientRect().height;
-        getSessions();
-        setTimeout(() => {
-            saveSession()
-        },60000)
+        // getSessions();
+        // setTimeout(() => {
+        //     saveSession()
+        // },60000)
     });
     function getSessions() {
         sessions = [];
@@ -119,16 +119,23 @@
     }
 </script>
 
-<button onclick={saveSession} class="absolute left-4 top-4 cursor-pointer z-[10000] pointer-events-all">Save</button>
+<!-- <button onclick={saveSession} class="absolute left-4 top-4 cursor-pointer z-[10000] pointer-events-all">Save</button>
 <div class="absolute left-4 top-10 cursor-pointer z-[10000] pointer-events-all flex flex-col items-baseline">
     {#each sessions as session}
         <button onclick="{getSession}" class="text-[10px]">{session.id}</button>
     {/each}
-</div>
+</div> -->
+<!-- 
 <div class="">
     <div id="textWrapper" class="my-16 mx-auto w-[40%] left-[50%] -translate-x-[55%] absolute z-[1000] transition-all duration-1000" bind:this={doc}></div>
     <TextModelCoordinator />
+</div> -->
+
+<div class="">
+    <div id="textWrapper" class="my-16 mx-auto w-[40%] left-[2%] absolute z-[1000] transition-all duration-1000" bind:this={doc}></div>
+    <TextModelCoordinator />
 </div>
+
 
 <style>
     :global(#textWrapper span) {

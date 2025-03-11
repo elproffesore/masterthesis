@@ -45,7 +45,8 @@
                             mode: 'free', // free, fixed
                             position: {
                                 free: {
-                                    x: spanWrapper.getBoundingClientRect().x > window.innerWidth / 2 ? window.innerWidth * 0.8 : window.innerWidth * 0.1,
+                                    // x: spanWrapper.getBoundingClientRect().x > window.innerWidth / 2 ? window.innerWidth * 0.8 : window.innerWidth * 0.1,
+                                    x: window.innerWidth * 0.6,
                                     y: window.scrollY + window.innerHeight / 2,
                                 },
                                 fixed: {
@@ -60,7 +61,7 @@
                             createdAt: new Date().getTime(),
                             changedAt: new Date().getTime(),
                         };
-
+                        spanWrapper.classList.add('modelRef-'+model.id);
                         // Push this node into the texts store
                         let length = $textModels.push(model);
                         model = $textModels[length - 1];
@@ -89,9 +90,9 @@
                     });
 
                     // Update the model with the new relation
-                    $relations = $relations;
+                    $relations = [...$relations];
                     model.relations.push($relations[relationsLength - 1]);
-                    $textModels = $textModels;
+                    $textModels = [...$textModels];
                 } catch (e) {
                     console.log(e);
                 }

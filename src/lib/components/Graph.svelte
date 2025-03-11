@@ -9,6 +9,18 @@
     let simulationArray = [];
     let relatedWordsArray = [];
     onMount(() => {
+     
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'g') {
+                $graphVisibility = true
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'g') {
+                $graphVisibility = false
+            }
+        });
+    
         svg = d3.select('#graph');
         relations.subscribe(() => {
             $wordRelations

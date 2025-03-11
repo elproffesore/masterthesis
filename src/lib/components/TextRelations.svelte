@@ -82,7 +82,7 @@
             .attr('marker-end', (d) => d.type == 'extracted'? 'url(#arrow)':'')
             .attr('marker-start', (d) => d.type != 'extracted'? 'url(#arrow)':'')
             .attr('stroke-width', (d) => (d.type == 'extracted' ? 2 : 1))
-            .attr('opacity',(d) =>  d.opacity );
+            .attr('opacity',(d) => $timelineVisibility ? d.opacity : 0.5 );
     }
 </script>
 
