@@ -8,6 +8,7 @@ export let text = writable("");
 export let textModels = writable([]);
 export let relations = writable([]);
 export let words = writable([]);
+export let paths = writable([]);
 
 // Graph Variables
 export let wordRelations = writable([]);

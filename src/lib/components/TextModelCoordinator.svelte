@@ -58,6 +58,7 @@
                             referenceNode: null,
                             relations: [],
                             relatedWords: [],
+                            showRelatedWords: true,
                             timelineOpacity: 1,
                             opacity: 1,
                             size: 12,

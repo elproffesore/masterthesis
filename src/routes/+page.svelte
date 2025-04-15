@@ -15,7 +15,7 @@
     onMount(async () => {
         //Fetch markdown file and convert it to html
         //let file = await fetch('./files/masterthesis.md');
-        let file = await fetch('./files/latour-a-cautious-promotheus.md');
+        let file = await fetch('./files/latour-a-cautious-promotheus-short.md');
         //let file = await fetch('./files/tversky-visualizing-thought.md');
         $filePath = new URL(file.url).pathname.replace('/files/', '');
         $text = await file.text();
@@ -42,7 +42,7 @@
 </div> -->
 
 <div class="">
-    <div id="textWrapper" class="my-16 mx-auto w-[40%] left-[2%] absolute z-[1000] transition-all duration-1000" bind:this={doc}></div>
+    <div id="textWrapper" class="my-8 mx-auto w-[40%] left-[2%] absolute z-[1000] transition-all duration-1000" bind:this={doc}></div>
     <TextModelCoordinator />
 </div>
 

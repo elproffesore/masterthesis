@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { marked } from 'marked';
-    import { docHeight, text, words, textModels, relations, graphVisibility, filePath } from '$lib/stores';
+    import { docHeight, text, words, textModels, relations, graphVisibility, filePath, paths } from '$lib/stores';
 
     let { doc = $bindable() } = $props();
     let sessions = $state([]);
@@ -20,6 +20,7 @@
     function saveSession() {
         let tms = [];
         let trs = [];
+        let drw = [];
         $textModels.map((tm) => {
             let obj = {};
             obj.id = tm.id;
@@ -50,6 +51,13 @@
                 obj.changedAt = tr.changedAt;
                 trs.push(obj);
             });
+        $paths.map((dr) => {
+            let obj = {};
+            obj.path = dr.path;
+            obj.changedAt = dr.changedAt;
+            obj.opacity = dr.opacity;
+            drw.push(obj);
+        })
         let date = new Date();
 
         currentSession = currentSession == null ? `${$filePath} | ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} - ${date.getHours()}:00` : currentSession;
@@ -58,7 +66,7 @@
             html: doc.innerHTML,
             textmodels: tms,
             textrelations: trs,
-            canvas: document.getElementById('drawing-canvas').innerHTML,
+            paths: drw,
             canvasHeight: document.getElementById('drawing-canvas').height,
             canvasWidth: document.getElementById('drawing-canvas').width,
             createdAt: new Date().getTime(),
@@ -91,9 +99,8 @@
             tr.target = target;
             $relations.push(tr);
         });
+        $paths = [...json.paths]
         $relations = [...$relations];
-        let canvas = document.getElementById('drawing-canvas');
-        document.getElementById('sessionStores').innerHTML += json.canvas;
     }
     let timeoutID = null;
     function toggleAutosave(e) {

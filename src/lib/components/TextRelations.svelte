@@ -17,9 +17,6 @@
         canvas.style.height = `${window.innerHeight}px`;
         ctx.scale(2, 2); // Adjust for high DPI screens
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        window.addEventListener('scroll', () => {
-            $relations = [...$relations];
-        });
         relations.subscribe((value) => {
             updateRelationsCanvas(value);
         });
@@ -29,8 +26,7 @@
         connectionsVisibility.subscribe((value) => {
             $relations = [...$relations];
         });
-
-
+        requestAnimationFrame(render);
     });
     function updateRelationsCanvas(relations) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -39,6 +35,9 @@
             if (d.target.referenceNode == null || d.source.node == null) {
                 d.target.referenceNode = document.querySelector('#textModel-' + d.target.id);
                 return;
+            }
+            if(d.type != 'extracted' && !d.target.showRelatedWords){
+                return
             }
 
             let textNode = d.source.node.getBoundingClientRect();
@@ -84,15 +83,25 @@
             ctx.lineWidth = d.type === 'extracted' ? 2 : 1;
             ctx.setLineDash(d.type === 'extracted' ? [] : [5, 5]);
             ctx.strokeStyle = '#11111199';
-            ctx.globalAlpha = $connectionsVisibility
-                ? $timelineVisibility
-                    ? d.opacity
-                    : d.type === 'extracted'
-                    ? 0.7
-                    : powScale(Math.abs(targetNode.y / textNode.y), 2)
-                : 0;
+            if($connectionsVisibility){
+                if($timelineVisibility){
+                    ctx.globalAlpha = d.opacity;
+                }else{
+                    if(d.type === 'extracted'){
+                        ctx.globalAlpha = 0.7;
+                    }else{  
+                        ctx.globalAlpha = targetNode.y / textNode.y;
+                    }
+                }
+            }else{
+                ctx.globalAlpha = 0;
+            }
             ctx.stroke();
         });
+    }
+    function render(){
+        updateRelationsCanvas($relations);
+        requestAnimationFrame(render);
     }
 </script>
 <canvas class="z-10 fixed pointer-events-none top-0 left-0" bind:this={canvas}> </canvas>

@@ -1,11 +1,10 @@
 <script>
     import { getStroke } from 'perfect-freehand';
     import { getSvgPathFromStroke } from '$lib/utils';
-    import { docHeight, drawingVisibility, canvasVisibility } from '$lib/stores';
+    import { docHeight, drawingVisibility, canvasVisibility, paths, timelineVisibility } from '$lib/stores';
     import { onMount } from 'svelte';
     let points = $state([]);
     let pathsBuffer = $state([]);
-    let paths = $state([]);
     onMount(() => {
         window.addEventListener('keydown', (e) => {
             if (e.key === 'd') {
@@ -33,9 +32,9 @@
         
 
         let stroke = getStroke(points, {
-            size: 3,
+            size: 5,
             thinning: 0.8,
-            smoothing: 0.4,
+            smoothing: 0.8,
             streamline: 0.6,
         });
 
@@ -45,15 +44,20 @@
     function handlePointerUp(e) {
         console.log('up');
         e.target.releasePointerCapture(e.pointerId);
-        paths = [...paths,pathsBuffer[pathsBuffer.length - 1]];
+        let pathObject = {
+            path: pathsBuffer[pathsBuffer.length - 1],
+            changedAt: new Date().getTime(),
+            opacity: 1,
+        }
+        $paths = [...$paths,pathObject];
         pathsBuffer = [];
         points = [];
     }
 </script>
 <svg id="drawing-canvas" class:hidden={!$canvasVisibility} class:pointer-events-none={!$drawingVisibility} class="w-[100vw] z-[1003] absolute top-0 left-0 transition-all duration-1000" style:height={$docHeight +'px'} height={$docHeight} onpointerdown="{handlePointerDown}" onpointermove="{handlePointerMove}" onpointerup="{handlePointerUp}">
     <g id="paths">
-        {#each paths as pathData}
-            <path d={pathData} stroke='%23111111' />
+        {#each $paths as pathData}
+            <path d={pathData.path} stroke='%23111111' opacity={$timelineVisibility?pathData.opacity:1} />
         {/each}
     </g>
     <g id="pathsBuffer">

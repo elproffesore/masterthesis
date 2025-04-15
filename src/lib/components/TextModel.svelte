@@ -36,14 +36,14 @@
             }
 
             if (menuVisibility && e.key === 's') {
-                resizeable = true
+                resizeable = true;
                 movable = false;
             }
             if (resizeable && e.key == '+') {
-                textModel.size += 1
+                textModel.size += 1;
             }
             if (resizeable && e.key == '-') {
-                textModel.size -= 1
+                textModel.size -= 1;
             }
         });
         window.addEventListener('keyup', (e) => {
@@ -52,7 +52,7 @@
             }
 
             if (e.key === 's') {
-                resizeable = false
+                resizeable = false;
                 movable = true;
             }
         });
@@ -65,7 +65,7 @@
         let node;
         ranges = [];
         while ((node = textNodes.nextNode())) {
-            console.log(node)
+            console.log(node);
             if (node.parentElement.classList.contains('extracted')) {
                 continue;
             }
@@ -87,9 +87,11 @@
             span.classList.add('related');
             span.classList.add('modelRef-' + textModel.id);
             span.id = uuidv4();
-            span.addEventListener('click',() => {
-                window.scrollTo({top: textModel.position[textModel.mode].y-window.innerHeight/4,  behavior: 'smooth' });
-            })
+            span.addEventListener('click', () => {
+                if (textModel.mode != 'fixed') {
+                    window.scrollTo({ top: textModel.position[textModel.mode].y - window.innerHeight / 4, behavior: 'smooth' });
+                }
+            });
             range.surroundContents(span);
             related.push(span);
         });
@@ -123,54 +125,54 @@
         d3.selectAll(`.relation-${textModel.id}.relation-related`).attr('display', 'none');
     }
     function toggleSameWordsInText() {
-        displaySameWordsInText = !displaySameWordsInText;
-        if (displaySameWordsInText) {
-            d3.selectAll(`.relation-${textModel.id}.relation-related`).attr('display', 'block');
-        } else {
-            d3.selectAll(`.relation-${textModel.id}.relation-related`).attr('display', 'none');
-        }
+        textModel.showRelatedWords = !textModel.showRelatedWords;
+        $relations = [...$relations];
     }
 
     async function retrieveRelatedWordsFromText() {
-        let doc = nlp.readDoc(textModel.text);
-        doc = doc
-            .tokens()
-            .filter((t) => !t.out(its.stopWordFlag))
-            .out();
-        let allRelatedWords = await Promise.all(
-            doc.map(async (word) => {
-                let foundWords = await semanticalyRelativeWordsInText(word, $words);
-                return foundWords;
-            }),
-        );
-        allRelatedWords = removeDuplicateObjects(allRelatedWords.flat());
-        allRelatedWords = allRelatedWords
-            .filter(
-                (word) =>
-                    !textModel.text
-                        .trim()
-                        .split(' ')
-                        .some((part) => levenshtein(part, word.word) < 5),
-            )
-            .filter((word) => word.score != 1 && word.score > 0.35)
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 5);
+        try {
+            let doc = nlp.readDoc(textModel.text);
+            doc = doc
+                .tokens()
+                .filter((t) => !t.out(its.stopWordFlag))
+                .out();
+            let allRelatedWords = await Promise.all(
+                doc.map(async (word) => {
+                    let foundWords = await semanticalyRelativeWordsInText(word, $words);
+                    return foundWords;
+                }),
+            );
+            allRelatedWords = removeDuplicateObjects(allRelatedWords.flat());
+            allRelatedWords = allRelatedWords
+                .filter(
+                    (word) =>
+                        !textModel.text
+                            .trim()
+                            .split(' ')
+                            .some((part) => levenshtein(part, word.word) < 5),
+                )
+                .filter((word) => word.score != 1 && word.score > 0.35)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5);
 
-        textModel.relatedWords = allRelatedWords;
-        console.log(textModel.relatedWords);
-        allRelatedWords.map((word) => {
-            let wordRelation = $wordRelations.findIndex((wordRelation) => wordRelation.id == word.word);
-            if (wordRelation != -1) {
-                $wordRelations[wordRelation].relations.push({ source: textModel.text, target: word.word, score: word.score });
-            } else {
-                $wordRelations.push({ type: 'relation', id: word.word, relations: [{ source: textModel.text, target: word.word, score: word.score }] });
-            }
-        });
-        let textModelDimensions = textModel.referenceNode.getBoundingClientRect();
-        $wordRelations.push({ type: 'root', id: textModel.text, node: textModel, relations: [], x: textModelDimensions.x + textModelDimensions.width / 2, fx: textModelDimensions.x + textModelDimensions.width / 2, y: textModelDimensions.y + textModelDimensions.height / 2, fy: textModelDimensions.y + textModelDimensions.height / 2 });
-        $wordRelations = [...$wordRelations];
-        $relations = [...$relations];
-        //let answer = await semanticalyRelativeWordsInText(textModel.text.split(' ')[0], $words)
+            textModel.relatedWords = allRelatedWords;
+            console.log(textModel.relatedWords);
+            allRelatedWords.map((word) => {
+                let wordRelation = $wordRelations.findIndex((wordRelation) => wordRelation.id == word.word);
+                if (wordRelation != -1) {
+                    $wordRelations[wordRelation].relations.push({ source: textModel.text, target: word.word, score: word.score });
+                } else {
+                    $wordRelations.push({ type: 'relation', id: word.word, relations: [{ source: textModel.text, target: word.word, score: word.score }] });
+                }
+            });
+            let textModelDimensions = textModel.referenceNode.getBoundingClientRect();
+            $wordRelations.push({ type: 'root', id: textModel.text, node: textModel, relations: [], x: textModelDimensions.x + textModelDimensions.width / 2, fx: textModelDimensions.x + textModelDimensions.width / 2, y: textModelDimensions.y + textModelDimensions.height / 2, fy: textModelDimensions.y + textModelDimensions.height / 2 });
+            $wordRelations = [...$wordRelations];
+            $relations = [...$relations];
+            //let answer = await semanticalyRelativeWordsInText(textModel.text.split(' ')[0], $words)
+        } catch (e) {
+            console.log(e);
+        }
     }
     function onMouseDown(event) {
         if (movable) {
@@ -242,8 +244,8 @@
 <!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events,a11y_mouse_events_have_key_events -->
 <div bind:this={object} id={'textModel-' + textModel.id} class:hidden={!$nodesVisibility} class="textModel z-[101] p-0 flex gap-2 {textModel.mode == 'free' ? 'absolute' : 'fixed'}" style:left={textModel.position[textModel.mode].x + 'px'} style:top={textModel.position[textModel.mode].y + 'px'} style:cursor={movable ? 'grab' : 'text'} onmousedown={onMouseDown} onmouseenter={displayMenu} onmouseleave={hideMenu}>
     <div class="flex flex-col items-baseline gap-1 max-w-[300px]">
-        <span style:opacity={$timelineVisibility? textModel.timelineOpacity:textModel.opacity} style:font-size={textModel.size + 'px'} class="markedText bg-primary {textCollapse ? 'line-clamp-1' : ''}">{textModel.text}</span>
-        <button class="z-[102] text-[8px]"  onclick={toggleSameWordsInText}>{ranges.length} Links</button>
+        <span style:opacity={$timelineVisibility ? textModel.timelineOpacity : textModel.opacity} style:font-size={textModel.size + 'px'} class="markedText bg-primary {textCollapse ? 'line-clamp-1' : ''}">{textModel.text}</span>
+        <button class="z-[102] text-[8px]" style:opacity={textModel.showRelatedWords ? 1 : 0.5} onclick={toggleSameWordsInText}>{ranges.length} Links</button>
     </div>
     <div class:hidden={!menuVisibility} class="z-[102] text-[8px] items-baseline flex flex-col gap-1 pt-[5px] {textModel.position[textModel.mode].x > window.innerWidth / 2 ? 'left-[110%]' : 'left-[0%]'}">
         <button onclick={deleteTextNode}>[x]</button>
