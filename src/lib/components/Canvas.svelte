@@ -1,12 +1,11 @@
 <script>
     import { getStroke } from 'perfect-freehand';
     import { getSvgPathFromStroke } from '$lib/utils';
-    import { docHeight, drawingVisibility } from '$lib/stores';
+    import { docHeight, drawingVisibility, canvasVisibility } from '$lib/stores';
     import { onMount } from 'svelte';
-
     let points = $state([]);
+    let pathsBuffer = $state([]);
     let paths = $state([]);
-    let innerHeight = $state(0);
     onMount(() => {
         window.addEventListener('keydown', (e) => {
             if (e.key === 'd') {
@@ -27,31 +26,40 @@
     }
 
     function handlePointerMove(e) {
-        console.log('down');
+        console.log('move');
 
         if (e.buttons !== 1) return;
         points = [...points, [e.pageX, e.pageY, e.pressure]];
         
 
         let stroke = getStroke(points, {
-            size: 2,
-            thinning: 0.2,
-            smoothing: 0.8,
-            streamline: 0.8,
+            size: 3,
+            thinning: 0.8,
+            smoothing: 0.4,
+            streamline: 0.6,
         });
 
         let pathData = getSvgPathFromStroke(stroke);
-        paths = [...paths, pathData];
+        pathsBuffer = [...pathsBuffer, pathData];
     }
     function handlePointerUp(e) {
         console.log('up');
         e.target.releasePointerCapture(e.pointerId);
+        paths = [...paths,pathsBuffer[pathsBuffer.length - 1]];
+        pathsBuffer = [];
         points = [];
     }
 </script>
-<svg id="drawing-canvas" class:pointer-events-none={!$drawingVisibility} class="w-[100vw] z-[1003] absolute top-0 left-0 transition-all duration-1000" style:height={$docHeight +'px'} height={$docHeight} onpointerdown="{handlePointerDown}" onpointermove="{handlePointerMove}" onpointerup="{handlePointerUp}">
-    {#each paths as pathData}
-        <path d={pathData} stroke='%23111111' />
-    {/each}
+<svg id="drawing-canvas" class:hidden={!$canvasVisibility} class:pointer-events-none={!$drawingVisibility} class="w-[100vw] z-[1003] absolute top-0 left-0 transition-all duration-1000" style:height={$docHeight +'px'} height={$docHeight} onpointerdown="{handlePointerDown}" onpointermove="{handlePointerMove}" onpointerup="{handlePointerUp}">
+    <g id="paths">
+        {#each paths as pathData}
+            <path d={pathData} stroke='%23111111' />
+        {/each}
+    </g>
+    <g id="pathsBuffer">
+        {#each pathsBuffer as pathData}
+            <path d={pathData} stroke='%23111111' />
+        {/each}
+    </g>
     <g id="sessionStores"></g>
 </svg>

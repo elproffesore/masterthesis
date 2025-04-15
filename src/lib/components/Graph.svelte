@@ -1,5 +1,5 @@
 <script>
-    import { graphVisibility, nodesVisibility, relations, textModels, timelineVisibility, wordRelations } from '$lib/stores';
+    import { connectionsVisibility, canvasVisibility, graphVisibility, nodesVisibility, relations, textModels, timelineVisibility, wordRelations } from '$lib/stores';
     import { powScale } from '$lib/utils';
     import { onMount } from 'svelte';
     import * as d3 from 'd3';
@@ -12,12 +12,16 @@
      
         window.addEventListener('keydown', (e) => {
             if (e.key === 'g') {
-                $graphVisibility = true
+                graphVisibility.set(true)
+                connectionsVisibility.set(false)
+                canvasVisibility.set(false)
             }
         });
         window.addEventListener('keyup', (e) => {
             if (e.key === 'g') {
-                $graphVisibility = false
+                graphVisibility.set(false)
+                connectionsVisibility.set(true)
+                canvasVisibility.set(true)
             }
         });
     

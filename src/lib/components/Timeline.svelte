@@ -13,20 +13,6 @@
         textModels.subscribe((value) => {
             timeStampsSorted = value.map((model) => model.changedAt).sort((a, b) => a - b);
         });
-        // relations.subscribe(() => {
-        //     timeStampsSorted = $relations.map((relation) => relation.target.createdAt).sort((a, b) => a - b);
-        // });
-        // timelineVisibility.subscribe((value) => {
-        //     if (!value) {
-        //         $relations.map((relation) => {
-        //             $textModels.find((t) => t.id == relation.target.id).opacity = 1;
-        //             relation.opacity = 1;
-        //         });
-        //     } else {
-        //         timeStampsSorted = $relations.map((relation) => relation.target.createdAt).sort((a, b) => a - b);
-        //         updateOpacities()
-        //     }
-        // });
         window.addEventListener('keydown', (e) => {
             if (e.key === 't') {
                 $timelineVisibility = true
@@ -72,17 +58,9 @@
         return scale;
     }
     function updateOpacities(){
-        // let relationScores = {};
-        // $relations.map((relation, relationIndex) => {
-        //     relationScores[relation.target.id] = Math.max(relationScores[relation.target.id] || 0, 0.1 + scalePointerPosition(relationIndex) * 0.9);
-        //     relation.opacity = 0.1 + scalePointerPosition(relationIndex) * 0.9;
-        // });
-        // Object.keys(relationScores).map((key) => {
-        //     $textModels.find((t) => t.id == key).opacity = relationScores[key];
-        // });
         $textModels.map((textModel,textModelIndex) => {
             let opacity = 0.05 + scalePointerPosition(textModelIndex) * 0.95
-            textModel.opacity = opacity
+            textModel.timelineOpacity = opacity
             $relations.filter((relation) => relation.target.id == textModel.id).map((relation) => {
                 relation.opacity = opacity
             })

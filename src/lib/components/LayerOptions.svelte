@@ -42,6 +42,11 @@
                     <input name="nodes" type="checkbox" class="" bind:checked={$nodesVisibility} />
                     Nodes</label>
             </div>
+            <div class="flex gap-2 ">
+                <label for="relations">
+                    <input name="relations" type="checkbox" class="" bind:checked={$connectionsVisibility} />
+                    Relations</label>
+            </div>
             {/if}
     </div>
     {/if}

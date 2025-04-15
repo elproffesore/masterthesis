@@ -57,7 +57,10 @@
                             nodes: [spanWrapper],
                             referenceNode: null,
                             relations: [],
+                            relatedWords: [],
+                            timelineOpacity: 1,
                             opacity: 1,
+                            size: 12,
                             createdAt: new Date().getTime(),
                             changedAt: new Date().getTime(),
                         };

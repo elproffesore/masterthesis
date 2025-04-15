@@ -3,5 +3,5 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [sveltekit()],
-	base: 'https://elproffesore.github.io/masterthesis/'
+	//base: 'https://elproffesore.github.io/masterthesis/'
 });
