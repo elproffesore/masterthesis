@@ -1,5 +1,5 @@
 <script>
-    import { graphVisibility, nodesVisibility, relations, textModels, timelineVisibility, wordRelations } from '$lib/stores';
+    import { connectionsVisibility, canvasVisibility, graphVisibility, nodesVisibility, relations, textModels, timelineVisibility, wordRelations } from '$lib/stores';
     import { powScale } from '$lib/utils';
     import { onMount } from 'svelte';
     import * as d3 from 'd3';
@@ -9,6 +9,22 @@
     let simulationArray = [];
     let relatedWordsArray = [];
     onMount(() => {
+     
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'g') {
+                graphVisibility.set(true)
+                connectionsVisibility.set(false)
+                canvasVisibility.set(false)
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'g') {
+                graphVisibility.set(false)
+                connectionsVisibility.set(true)
+                canvasVisibility.set(true)
+            }
+        });
+    
         svg = d3.select('#graph');
         relations.subscribe(() => {
             $wordRelations

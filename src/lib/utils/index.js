@@ -53,7 +53,7 @@ export function findSpanParentRecursive(node, level = 0) {
 }
 
 export function powScale(value, pow) {
-    return d3.scalePow().domain([0,0.7]).range([0,1]).exponent(pow)(value);
+    return d3.scalePow().domain([0,1]).range([0,1]).exponent(pow)(value);
 }
 export function createRelation(){
 

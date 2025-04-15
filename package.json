@@ -1,6 +1,6 @@
 {
-	"name": "framework",
-	"version": "0.0.1",
+	"name": "Masterthesis Code",
+	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev --host",

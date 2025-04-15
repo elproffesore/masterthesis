@@ -4,23 +4,24 @@
     import { textModels } from '$lib/stores';
     import { relations, timelineVisibility, connectionsVisibility } from '$lib/stores';
     import { getMostLeftNode, getMostRightNode, powScale } from '$lib/utils';
-    import * as d3 from 'd3';
     import { onMount } from 'svelte';
     import Graph from './Graph.svelte';
 
-    let svg = null;
-    const line = d3
-        .line()
-        .x((d) => d.x)
-        .y((d) => d.y)
-        .curve(d3.curveCatmullRom.alpha(0.7));
+    let canvas = null;
+    let ctx = null;
     onMount(() => {
-        svg = d3.select('#relations');
+        ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth*2; // Adjust for high DPI screens
+        canvas.height = window.innerHeight*2;
+        canvas.style.width = `${window.innerWidth}px`;
+        canvas.style.height = `${window.innerHeight}px`;
+        ctx.scale(2, 2); // Adjust for high DPI screens
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         window.addEventListener('scroll', () => {
             $relations = [...$relations];
         });
         relations.subscribe((value) => {
-            updateRelations(value);
+            updateRelationsCanvas(value);
         });
         timelineVisibility.subscribe((value) => {
             $relations = [...$relations];
@@ -28,76 +29,71 @@
         connectionsVisibility.subscribe((value) => {
             $relations = [...$relations];
         });
+
+
     });
+    function updateRelationsCanvas(relations) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    function updateRelations(relations) {
-        let relationLinesUpdate = svg.selectAll('.relation').data(relations);
-        relationLinesUpdate.exit().remove();
+        relations.forEach((d) => {
+            if (d.target.referenceNode == null || d.source.node == null) {
+                d.target.referenceNode = document.querySelector('#textModel-' + d.target.id);
+                return;
+            }
 
-        let relationLinesEnter = relationLinesUpdate.enter().append('path').attr('stroke', '#11111199').attr('fill', 'none');
+            let textNode = d.source.node.getBoundingClientRect();
+            let targetNode = d.target.referenceNode.getBoundingClientRect();
 
-        relationLinesEnter
-            .merge(relationLinesUpdate)
-            .attr('class', (d) => `relation relation-${d.target.id} relation-${d.type}`)
-            .attr('d', (d) => {
-                if (d.target.referenceNode == null || d.source.node == null) {
-                    console.log(d.target)
-                    d.target.referenceNode = document.querySelector('#textModel-' + d.target.id)
-                    return '';
+            let controlPoint1, controlPoint2, controlPoint3, controlPoint4;
 
-                }
-                let textNode = d.source.node.getBoundingClientRect();
-                let targetNode = d.target.referenceNode.getBoundingClientRect();
-                // Create four control points for the bezier curve
-                let controlPoint1 = {};
-                let controlPoint2 = {};
-                let controlPoint3 = {};
-                let controlPoint4 = {};
+            if (textNode.x < targetNode.x) {
+                controlPoint1 = { x: textNode.x + textNode.width + 5, y: textNode.y + textNode.height / 2 };
+                controlPoint2 = {
+                    x: textNode.x + textNode.width + (targetNode.x - (textNode.x + textNode.width)) * 0.3,
+                    y: textNode.y > targetNode.y ? textNode.y : textNode.y + textNode.height,
+                };
+                controlPoint3 = {
+                    x: textNode.x + textNode.width + (targetNode.x - (textNode.x + textNode.width)) * 0.7,
+                    y: targetNode.y > textNode.y ? targetNode.y : targetNode.y + targetNode.height / 2,
+                };
+                controlPoint4 = { x: targetNode.x - 5, y: targetNode.y + targetNode.height / 2 };
+            } else {
+                controlPoint1 = { x: textNode.x - 5, y: textNode.y + textNode.height / 2 };
+                controlPoint2 = {
+                    x: textNode.x - (textNode.x - (targetNode.x + targetNode.width)) * 0.3,
+                    y: textNode.y > targetNode.y ? textNode.y : textNode.y + textNode.height,
+                };
+                controlPoint3 = {
+                    x: textNode.x - (textNode.x - (targetNode.x + targetNode.width)) * 0.7,
+                    y: targetNode.y > textNode.y ? targetNode.y : targetNode.y + targetNode.height / 2,
+                };
+                controlPoint4 = { x: targetNode.x + targetNode.width + 5, y: targetNode.y + targetNode.height / 2 };
+            }
 
-                if (textNode.x < targetNode.x) {
-                    controlPoint1 = { x: textNode.x + textNode.width + 5, y: textNode.y + textNode.height / 2 };
-                    controlPoint2 = {
-                        x: textNode.x + textNode.width + (targetNode.x - (textNode.x + textNode.width)) * 0.2,
-                        y: textNode.y + textNode.height / 2,
-                    };
-                    controlPoint3 = {
-                        x: textNode.x + textNode.width + (targetNode.x - (textNode.x + textNode.width)) * 0.8,
-                        y: targetNode.y + targetNode.height / 2,
-                    };
-                    controlPoint4 = { x: targetNode.x - 5, y: targetNode.y + targetNode.height / 2 };
-                } else {
-                    controlPoint1 = { x: textNode.x - 5, y: textNode.y + textNode.height / 2 };
-                    controlPoint2 = {
-                        x: textNode.x - (textNode.x - (targetNode.x + targetNode.width)) * 0.2,
-                        y: textNode.y + textNode.height / 2,
-                    };
-                    controlPoint3 = {
-                        x: textNode.x - (textNode.x - (targetNode.x + targetNode.width)) * 0.8,
-                        y: targetNode.y + targetNode.height / 2,
-                    };
-                    controlPoint4 = { x: targetNode.x + targetNode.width + 5, y: targetNode.y + targetNode.height / 2 };
-                }
-                return line([controlPoint1, controlPoint2, controlPoint3, controlPoint4]);
-            })
-            .attr('marker-end', (d) => d.type == 'extracted'? 'url(#arrow)':'')
-            .attr('marker-start', (d) => d.type != 'extracted'? 'url(#arrow)':'')
-            .attr('stroke-width', (d) => (d.type == 'extracted' ? 2 : 1))
-            .attr('opacity',(d) =>  d.opacity );
+            ctx.beginPath();
+            ctx.moveTo(controlPoint1.x, controlPoint1.y);
+            ctx.bezierCurveTo(
+                controlPoint2.x,
+                controlPoint2.y,
+                controlPoint3.x,
+                controlPoint3.y,
+                controlPoint4.x,
+                controlPoint4.y
+            );
+
+            ctx.lineWidth = d.type === 'extracted' ? 2 : 1;
+            ctx.setLineDash(d.type === 'extracted' ? [] : [5, 5]);
+            ctx.strokeStyle = '#11111199';
+            ctx.globalAlpha = $connectionsVisibility
+                ? $timelineVisibility
+                    ? d.opacity
+                    : d.type === 'extracted'
+                    ? 0.7
+                    : powScale(Math.abs(targetNode.y / textNode.y), 2)
+                : 0;
+            ctx.stroke();
+        });
     }
 </script>
+<canvas class="z-10 fixed pointer-events-none top-0 left-0" bind:this={canvas}> </canvas>
 
-<svg id="relations" class:hidden={!$nodesVisibility || $graphVisibility} class="w-[200vw] z-10 h-screen fixed pointer-events-none top-0 left-0 transition-all duration-1000">
-    <defs>
-        <!-- A marker to be used as an arrowhead -->
-        <marker
-          id="arrow"
-          viewBox="0 0 10 10"
-          refX="5"
-          refY="5"
-          markerWidth="4"
-          markerHeight="4"
-          orient="auto-start-reverse">
-          <path d="M 0 0 L 10 5 L 0 10 z" />
-        </marker>
-      </defs>
-</svg>

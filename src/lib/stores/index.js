@@ -1,7 +1,9 @@
 import { colors } from "$lib/utils";
 import { writable } from "svelte/store";
 
+export let filePath = writable("");
 
+// Global Variables holding Text
 export let text = writable("");
 export let textModels = writable([]);
 export let relations = writable([]);
@@ -24,6 +26,7 @@ export let timelineVisibility = writable(false);
 export let nodesVisibility = writable(true);
 export let graphVisibility = writable(false);
 export let drawingVisibility = writable(false);
+export let canvasVisibility = writable(true);
 export let drawingFixedVisibility = writable(false);
 
 

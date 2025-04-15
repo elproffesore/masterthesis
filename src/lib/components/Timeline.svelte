@@ -10,18 +10,17 @@
     let timelineElement;
     let pointerPosition = $state(0);
     onMount(() => {
-        relations.subscribe(() => {
-            timeStampsSorted = $relations.map((relation) => relation.target.createdAt).sort((a, b) => a - b);
+        textModels.subscribe((value) => {
+            timeStampsSorted = value.map((model) => model.changedAt).sort((a, b) => a - b);
         });
-        timelineVisibility.subscribe((value) => {
-            if (!value) {
-                $relations.map((relation) => {
-                    $textModels.find((t) => t.id == relation.target.id).opacity = 1;
-                    relation.opacity = 1;
-                });
-            } else {
-                timeStampsSorted = $relations.map((relation) => relation.target.createdAt).sort((a, b) => a - b);
-                updateOpacities()
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 't') {
+                $timelineVisibility = true
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 't') {
+                $timelineVisibility = false
             }
         });
     });
@@ -54,18 +53,17 @@
         updateOpacities()
     }
     function scalePointerPosition(index) {
-        let absDifference = index - pointer;
-        let scale = 1 / (Math.pow(absDifference, 2) + 1);
+        let absDifference = Math.abs(index - pointer);
+        let scale = 1 / (Math.pow(absDifference, 8) + 1);
         return scale;
     }
     function updateOpacities(){
-        let relationScores = {};
-        $relations.map((relation, relationIndex) => {
-            relationScores[relation.target.id] = Math.max(relationScores[relation.target.id] || 0, 0.1 + scalePointerPosition(relationIndex) * 0.9);
-            relation.opacity = 0.1 + scalePointerPosition(relationIndex) * 0.9;
-        });
-        Object.keys(relationScores).map((key) => {
-            $textModels.find((t) => t.id == key).opacity = relationScores[key];
+        $textModels.map((textModel,textModelIndex) => {
+            let opacity = 0.05 + scalePointerPosition(textModelIndex) * 0.95
+            textModel.timelineOpacity = opacity
+            $relations.filter((relation) => relation.target.id == textModel.id).map((relation) => {
+                relation.opacity = opacity
+            })
         });
         $textModels = [...$textModels];
         $relations = [...$relations];
@@ -74,9 +72,9 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-    class="fixed bottom-px w-full left-[5%] flex items-end h-8 bg-[#fffff8] z-[1002]"
+    class="fixed bottom-px w-full left-[5%] flex items-end h-8 bg-[#fffff4] z-[1002]"
     style:visibility={$timelineVisibility ? 'visible' : 'hidden'}
-    style="box-shadow: 0 0px 10px 10px #fffff8;"
+    style="box-shadow: 0 0px 10px 10px #fffff4;"
     onmousemove={updateTimeLinePointer}>
     <div bind:this={timelineElement} class="w-max flex items-end gap-2 z-1">
         {#each timeStampsSorted as timestamp, timestampIndex}
