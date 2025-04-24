@@ -132,9 +132,16 @@ export function interpolatePosition(points, singlePosition, scrollY) {
     }
     
     // If closestBefore or closestAfter is not found, return null (or handle accordingly)
+    if (!closestBefore && closestAfter) {
+        return { x: closestAfter.x, y: closestAfter.y };
+    }
     if (closestBefore && !closestAfter) {
         return { x: closestBefore.x, y: closestBefore.y };
     }
+    if (!closestBefore && !closestAfter) {
+        return {x:points[points.length - 1].x, y: points[points.length - 1].y};
+    }
+
     console.log(closestBefore, closestAfter)
     
     // Calculate the scroll progress between closestBefore and closestAfter
