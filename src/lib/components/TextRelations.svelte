@@ -82,7 +82,7 @@
 
             ctx.lineWidth = d.type === 'extracted' ? 2 : 1;
             ctx.setLineDash(d.type === 'extracted' ? [] : [5, 5]);
-            ctx.strokeStyle = '#11111199';
+            ctx.strokeStyle = '#11111155';
             if($connectionsVisibility){
                 if($timelineVisibility){
                     ctx.globalAlpha = d.opacity;
@@ -90,7 +90,7 @@
                     if(d.type === 'extracted'){
                         ctx.globalAlpha = 0.7;
                     }else{  
-                        ctx.globalAlpha = targetNode.y / textNode.y;
+                        ctx.globalAlpha = (targetNode.y / textNode.y)*1.5;
                     }
                 }
             }else{

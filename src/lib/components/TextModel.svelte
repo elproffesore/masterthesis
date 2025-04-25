@@ -184,7 +184,6 @@
     function onMouseUp(event) {
         if (moving) {
             event.preventDefault();
-            textModel.changedAt = new Date().getTime();
             moving = false;
         }
     }
@@ -206,8 +205,9 @@
         e.preventDefault();
         $relations = [...$relations.filter((relation) => relation.target.id != textModel.id)];
         let node;
-        while ((node = document.querySelector('.modelRef-' + textModel.id))) {
+        while ((node = document.querySelector('.related.modelRef-' + textModel.id))) {
             node.outerHTML = node.innerHTML;
+        
         }
         $textModels = [...$textModels.filter((model) => model.id != textModel.id)];
     }
@@ -238,6 +238,11 @@
     function hideMenu() {
         menuVisibility = false;
     }
+    function scrollToSource(e) {
+        e.preventDefault();
+        let boundingClientRectText = textModel.referenceNode.getBoundingClientRect();
+        window.scrollTo({ top: boundingClientRectText.y, behavior: 'smooth' });
+    }
 </script>
 
 <svelte:window onmouseup={onMouseUp} onmousemove={handleDrag} />
@@ -245,11 +250,12 @@
 <div bind:this={object} id={'textModel-' + textModel.id} class:hidden={!$nodesVisibility} class="textModel z-[101] p-0 flex gap-2 {textModel.mode == 'free' ? 'absolute' : 'fixed'}" style:left={textModel.position[textModel.mode].x + 'px'} style:top={textModel.position[textModel.mode].y + 'px'} style:cursor={movable ? 'grab' : 'text'} onmousedown={onMouseDown} onmouseenter={displayMenu} onmouseleave={hideMenu}>
     <div class="flex flex-col items-baseline gap-1 max-w-[300px]">
         <span style:opacity={$timelineVisibility ? textModel.timelineOpacity : textModel.opacity} style:font-size={textModel.size + 'px'} class="markedText bg-primary {textCollapse ? 'line-clamp-1' : ''}">{textModel.text}</span>
-        <button class="z-[102] text-[8px]" style:opacity={textModel.showRelatedWords ? 1 : 0.5} onclick={toggleSameWordsInText}>{ranges.length} Links</button>
+        <button class="z-[102] text-[8px]" class:hidden={!menuVisibility} style:opacity={textModel.showRelatedWords ? 1 : 0.5} onclick={toggleSameWordsInText}>{ranges.length} Links</button>
     </div>
     <div class:hidden={!menuVisibility} class="z-[102] text-[8px] items-baseline flex flex-col gap-1 pt-[5px] {textModel.position[textModel.mode].x > window.innerWidth / 2 ? 'left-[110%]' : 'left-[0%]'}">
         <button onclick={deleteTextNode}>[x]</button>
         <button onclick={pinTextModel}>{textModel.mode == 'free' ? 'pin' : 'unpin'}</button>
         <button onclick={toggleTextCollapse}>{textCollapse ? 'spread' : 'collapse'}</button>
+        <button onclick={scrollToSource}>source</button>
     </div>
 </div>

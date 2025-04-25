@@ -58,10 +58,10 @@
                             referenceNode: null,
                             relations: [],
                             relatedWords: [],
-                            showRelatedWords: true,
+                            showRelatedWords: false,
                             timelineOpacity: 1,
                             opacity: 1,
-                            size: 12,
+                            size: 16,
                             createdAt: new Date().getTime(),
                             changedAt: new Date().getTime(),
                         };

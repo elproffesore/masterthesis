@@ -46,6 +46,6 @@
         @apply bg-[#aaff00aa];
     }
     .related {
-        @apply underline decoration-dotted decoration-2 cursor-alias;
+        @apply underline decoration-dotted decoration-2 cursor-alias transition-all duration-200;
     }
 }
