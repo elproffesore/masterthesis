@@ -27,6 +27,7 @@
             obj.text = tm.text;
             obj.type = tm.type;
             obj.mode = tm.mode;
+            obj.size = tm.size;
             obj.position = { free: { x: 0, y: 0 }, fixed: { x: 0, y: 0 } };
             obj.position.free.x = tm.position.free.x;
             obj.position.free.y = tm.position.free.y;
@@ -53,7 +54,7 @@
             });
         $paths.map((dr) => {
             let obj = {};
-            obj.path = dr.path;
+            obj.pathGroup = dr.pathGroup;
             obj.changedAt = dr.changedAt;
             obj.opacity = dr.opacity;
             drw.push(obj);

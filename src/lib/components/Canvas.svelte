@@ -1,10 +1,12 @@
 <script>
     import { getStroke } from 'perfect-freehand';
     import { getSvgPathFromStroke } from '$lib/utils';
-    import { docHeight, drawingVisibility, canvasVisibility, paths, timelineVisibility } from '$lib/stores';
+    import { docHeight, drawingVisibility, canvasVisibility, paths, timelineVisibility, annotationsVisibility } from '$lib/stores';
     import { onMount } from 'svelte';
+    import { path } from 'd3';
     let points = $state([]);
     let pathsBuffer = $state([]);
+    let pathGroup = $state([]);
     onMount(() => {
         window.addEventListener('keydown', (e) => {
             if (e.key === 'd') {
@@ -13,7 +15,15 @@
         });
         window.addEventListener('keyup', (e) => {
             if (e.key === 'd') {
-                $drawingVisibility = false
+                $drawingVisibility = false;
+                let pathObject = {
+                    pathGroup,
+                    changedAt: new Date().getTime(),
+                    opacity: 1,
+                }
+                $paths = [...$paths,pathObject];
+                pathGroup = [];
+                pathsBuffer = [];
             }
         });
     });
@@ -44,20 +54,18 @@
     function handlePointerUp(e) {
         console.log('up');
         e.target.releasePointerCapture(e.pointerId);
-        let pathObject = {
-            path: pathsBuffer[pathsBuffer.length - 1],
-            changedAt: new Date().getTime(),
-            opacity: 1,
-        }
-        $paths = [...$paths,pathObject];
-        pathsBuffer = [];
+        pathGroup = [...pathGroup, pathsBuffer[pathsBuffer.length - 1]];
         points = [];
     }
 </script>
-<svg id="drawing-canvas" class:hidden={!$canvasVisibility} class:pointer-events-none={!$drawingVisibility} class="w-[100vw] z-[1003] absolute top-0 left-0 transition-all duration-1000" style:height={$docHeight +'px'} height={$docHeight} onpointerdown="{handlePointerDown}" onpointermove="{handlePointerMove}" onpointerup="{handlePointerUp}">
+<svg id="drawing-canvas" class:hidden={!$annotationsVisibility} class:pointer-events-none={!$drawingVisibility} class="w-[100vw] z-[1003] absolute top-0 left-0 transition-all duration-1000" style:height={$docHeight +'px'} height={$docHeight} onpointerdown="{handlePointerDown}" onpointermove="{handlePointerMove}" onpointerup="{handlePointerUp}">
     <g id="paths">
-        {#each $paths as pathData}
-            <path d={pathData.path} stroke='%23111111' opacity={$timelineVisibility?pathData.opacity:1} />
+        {#each $paths as pathsObject}
+        <g opacity={$timelineVisibility?pathsObject.opacity:1}>
+            {#each pathsObject.pathGroup as pathData}
+                <path d={pathData} stroke='%23111111'/>
+            {/each}
+        </g>
         {/each}
     </g>
     <g id="pathsBuffer">

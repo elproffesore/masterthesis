@@ -83,14 +83,14 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="fixed bottom-px w-full left-[5%] flex items-end h-8 bg-[#fffff4] z-[1002]" style:visibility={$timelineVisibility ? 'visible' : 'hidden'} style="box-shadow: 0 0px 10px 10px #fffff4;" onmousemove={updateTimeLinePointer}>
+<div class="fixed bottom-px w-full left-[5px] flex items-end h-8 bg-[#fffff4] z-[1002]" style:visibility={$timelineVisibility ? 'visible' : 'hidden'} style="box-shadow: 0 0px 10px 10px #fffff4;" onmousemove={updateTimeLinePointer}>
     <div bind:this={timelineElement} class="w-max flex items-end gap-2 z-1">
         {#each timeStampsSorted as timestamp, timestampIndex}
             <div class="w-px bg-black relative rounded" style="height: {10 + scalePointerPosition(timestampIndex) * 15}px;"></div>
         {/each}
     </div>
     <div class="absolute bottom-0 w-max pointer-events-none z-0" style:left={pointerPosition + 'px'} style:visibility={$timelineVisibility && timeStampsSorted.length > 0 ? 'visible' : 'hidden'}>
-        <span class="relative text-[0.8rem] text-black left-[-50%] w-max pointer-events-none">{moment(timeStampsSorted[Math.round(pointer)]).format('DD.MM. - HH:mm:ss')}</span>
+        <span class="relative text-[0.8rem] text-black left-[0%] w-max pointer-events-none">{moment(timeStampsSorted[Math.round(pointer)]).format('DD.MM. - HH:mm:ss')}</span>
         <div class="w-px h-12 bg-[#ff000066] rounded pointer-events-none"></div>
     </div>
 </div>

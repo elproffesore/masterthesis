@@ -56,11 +56,17 @@
                 movable = true;
             }
         });
-        retrieveSameWordsInText();
+        retrieveSameWordsInText('#textWrapper');
+        $textModels.map(model => {
+            if (model.id != textModel.id) {
+                retrieveSameWordsInText('#textModel-' + model.id);
+            }
+        })
+
     });
-    function retrieveSameWordsInText() {
+    function retrieveSameWordsInText(selector) {
         // Find similar texts in source text
-        let rootElement = document.querySelector('#textWrapper');
+        let rootElement = document.querySelector(selector);
         let textNodes = document.createTreeWalker(rootElement, NodeFilter.SHOW_TEXT, null, false);
         let node;
         ranges = [];
@@ -122,7 +128,6 @@
             textModel.relations.push($relations[relationsLength - 1]);
             $textModels = [...$textModels];
         });
-        d3.selectAll(`.relation-${textModel.id}.relation-related`).attr('display', 'none');
     }
     function toggleSameWordsInText() {
         textModel.showRelatedWords = !textModel.showRelatedWords;
@@ -143,6 +148,7 @@
                 }),
             );
             allRelatedWords = removeDuplicateObjects(allRelatedWords.flat());
+            console.log(allRelatedWords);
             allRelatedWords = allRelatedWords
                 .filter(
                     (word) =>
@@ -153,10 +159,10 @@
                 )
                 .filter((word) => word.score != 1 && word.score > 0.35)
                 .sort((a, b) => b.score - a.score)
-                .slice(0, 5);
+                .slice(0, 15);
 
             textModel.relatedWords = allRelatedWords;
-            console.log(textModel.relatedWords);
+            
             allRelatedWords.map((word) => {
                 let wordRelation = $wordRelations.findIndex((wordRelation) => wordRelation.id == word.word);
                 if (wordRelation != -1) {
@@ -240,8 +246,7 @@
     }
     function scrollToSource(e) {
         e.preventDefault();
-        let boundingClientRectText = textModel.referenceNode.getBoundingClientRect();
-        window.scrollTo({ top: boundingClientRectText.y, behavior: 'smooth' });
+        document.querySelector('.extracted.modelRef-' + textModel.id).scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 </script>
 
@@ -250,7 +255,7 @@
 <div bind:this={object} id={'textModel-' + textModel.id} class:hidden={!$nodesVisibility} class="textModel z-[101] p-0 flex gap-2 {textModel.mode == 'free' ? 'absolute' : 'fixed'}" style:left={textModel.position[textModel.mode].x + 'px'} style:top={textModel.position[textModel.mode].y + 'px'} style:cursor={movable ? 'grab' : 'text'} onmousedown={onMouseDown} onmouseenter={displayMenu} onmouseleave={hideMenu}>
     <div class="flex flex-col items-baseline gap-1 max-w-[300px]">
         <span style:opacity={$timelineVisibility ? textModel.timelineOpacity : textModel.opacity} style:font-size={textModel.size + 'px'} class="markedText bg-primary {textCollapse ? 'line-clamp-1' : ''}">{textModel.text}</span>
-        <button class="z-[102] text-[8px]" class:hidden={!menuVisibility} style:opacity={textModel.showRelatedWords ? 1 : 0.5} onclick={toggleSameWordsInText}>{ranges.length} Links</button>
+        <button class="z-[102] text-[8px]" class:hidden={!menuVisibility} style:opacity={textModel.showRelatedWords ? 1 : 0.5} onclick={toggleSameWordsInText}>{textModel.relations.length} Links</button>
     </div>
     <div class:hidden={!menuVisibility} class="z-[102] text-[8px] items-baseline flex flex-col gap-1 pt-[5px] {textModel.position[textModel.mode].x > window.innerWidth / 2 ? 'left-[110%]' : 'left-[0%]'}">
         <button onclick={deleteTextNode}>[x]</button>

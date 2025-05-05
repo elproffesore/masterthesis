@@ -90,7 +90,7 @@
                     if(d.type === 'extracted'){
                         ctx.globalAlpha = 0.7;
                     }else{  
-                        ctx.globalAlpha = (targetNode.y / textNode.y)*1.5;
+                        ctx.globalAlpha = ((window.scroll+textNode.top)/(window.scroll+targetNode.y))*2;
                     }
                 }
             }else{

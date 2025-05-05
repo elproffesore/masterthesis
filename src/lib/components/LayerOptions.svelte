@@ -1,5 +1,5 @@
 <script>
-    import { drawingFixedVisibility, drawingVisibility, linkOpacity, markingType, relations } from '$lib/stores';
+    import { annotationsVisibility, drawingVisibility, linkOpacity, markingType, relations } from '$lib/stores';
     import { timelineVisibility, connectionsVisibility, nodesVisibility, graphVisibility, markingColor, textCollapse } from '$lib/stores';
     import { colors } from '$lib/utils';
     let optionsVisibility = $state(true);
@@ -46,6 +46,11 @@
                 <label for="relations">
                     <input name="relations" type="checkbox" class="" bind:checked={$connectionsVisibility} />
                     Relations</label>
+            </div>
+            <div class="flex gap-2 ">
+                <label for="annotations">
+                    <input name="annotations" type="checkbox" class="" bind:checked={$annotationsVisibility} />
+                    Annotations</label>
             </div>
             {/if}
     </div>

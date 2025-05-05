@@ -1,5 +1,5 @@
 <script>
-    import { connectionsVisibility, canvasVisibility, graphVisibility, nodesVisibility, relations, textModels, timelineVisibility, wordRelations } from '$lib/stores';
+    import { connectionsVisibility, graphVisibility, nodesVisibility, relations, textModels, timelineVisibility, wordRelations } from '$lib/stores';
     import { powScale } from '$lib/utils';
     import { onMount } from 'svelte';
     import * as d3 from 'd3';
@@ -13,15 +13,11 @@
         window.addEventListener('keydown', (e) => {
             if (e.key === 'g') {
                 graphVisibility.set(true)
-                connectionsVisibility.set(false)
-                canvasVisibility.set(false)
             }
         });
         window.addEventListener('keyup', (e) => {
             if (e.key === 'g') {
                 graphVisibility.set(false)
-                connectionsVisibility.set(true)
-                canvasVisibility.set(true)
             }
         });
     
@@ -109,7 +105,7 @@
                                         }
                                     });
                                     max = max.reduce((acc, num) => acc + num, 0) / d.relations.length;
-                                    return `${powScale(max, 3) * 45}px`;
+                                    return `${10 + powScale(max, 2) * 45}px`;
                                 }
                             })
                             .attr('fill', (d) => (d.type == 'relation' ? '#ff1111' : 'none'))

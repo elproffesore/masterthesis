@@ -22,13 +22,13 @@ export let docHeight = writable(0);
 export let linkOpacity = writable(1);
 
 // Visibilities of the modals
-export let connectionsVisibility = writable(false);
+export let connectionsVisibility = writable(true);
 export let timelineVisibility = writable(false);
-export let nodesVisibility = writable(false);
+export let nodesVisibility = writable(true);
 export let graphVisibility = writable(false);
 export let drawingVisibility = writable(false);
 export let canvasVisibility = writable(true);
-export let drawingFixedVisibility = writable(false);
+export let annotationsVisibility = writable(true);
 
 
 

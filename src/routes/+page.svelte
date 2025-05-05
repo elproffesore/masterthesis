@@ -11,7 +11,7 @@
     const its = nlp.its;
     const as = nlp.as;
     let html = $state('');
-    let doc;
+    let doc = $state(null);
     onMount(async () => {
         //Fetch markdown file and convert it to html
         //let file = await fetch('./files/masterthesis.md');
@@ -36,11 +36,6 @@
 
 </script>
 <Sessions bind:doc/>
-<!-- <div class="">
-    <div id="textWrapper" class="my-16 mx-auto w-[40%] left-[50%] -translate-x-[55%] absolute z-[1000] transition-all duration-1000" bind:this={doc}></div>
-    <TextModelCoordinator />
-</div> -->
-
 <div class="">
     <div id="textWrapper" class="my-8 mx-auto w-[40%] left-[2%] absolute z-[1000] transition-all duration-1000" bind:this={doc}></div>
     <TextModelCoordinator />
